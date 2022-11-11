@@ -1,5 +1,4 @@
-"""This model is about DataPreparation.
-"""
+"""This model is about DataPreparation."""
 
 
 import yaml
@@ -15,7 +14,7 @@ class PrepareDataLoader:
     """DataPreparation."""
 
     def __init__(self, config_path: str):
-        """
+        """__init__ method for DataLoader class.
 
         Args:
             config_path (str): _description_
@@ -35,18 +34,17 @@ class PrepareDataLoader:
         )
 
     def __create_op(self, op_info):
-        """
-            Loading transformation operations that has been requested by user through the config file.
+        """Loading transformation operations that has been requested by user through the config file.
+
         Args:
             op_info (dict): contain the name and parameters of an Albumentation operation
 
         Raises:
-            Not implemented exception in case of an operation that not yet implemented or an operation that dosen't exist at all
+            NotImplementedError: Not implemented exception in case of an operation that not yet implemented or an operation that dosen't exist at all
 
         Returns:
             operation : the disared operation parameters with disered paramters
         """
-
         op_name = list(op_info.keys())[0]
         if op_name == "resize":
             return A.Resize(
@@ -76,11 +74,11 @@ class PrepareDataLoader:
                 std=tuple(op_info["normalize"]["std"]),
             )
 
-        raise f"{op_name} is either not yet implmented or dosen't exist in Albumentation"
+        # raise f"{op_name} is either not yet implmented or dosen't exist in Albumentation"
+        raise NotImplementedError
 
     def prepare_transformations(self, config_path: str):
-        """This function reads the config yaml file and
-            prepare the augmentation trasnform with albumentation
+        """This function reads the config yaml file and prepare the augmentation trasnform with albumentation.
 
         Args:
             config_path (str): path to the configuration file
@@ -106,7 +104,7 @@ class PrepareDataLoader:
         return A.Compose(train_compose), A.Compose(test_compose)
 
     def __call__(self):
-        """Data Preparation
+        """Data Preparation.
 
         Returns:
             DataLoaders
@@ -181,7 +179,7 @@ class PrepareDataLoader:
             return train_loader, val_loader, test_loader
 
     def load_check_conf_file(self, config_path: str):
-        """Loading and checking config file for DataLoader
+        """Loading and checking config file for DataLoader.
 
         Args:
             config_path (str): path to the yaml config file
