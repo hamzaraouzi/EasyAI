@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "easyai"
+version = "0.1.0"
+description = ""
+authors = ["hamza raouzi <hamza.raouzi2016@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+torch = "^1.13.0"
+torchvision = "^0.14.0"
+tqdm = "^4.64.1"
+albumentations = "^1.3.0"
+pandas = "^1.5.1"
+click = "^8.1.3"
+wandb = "^0.13.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
