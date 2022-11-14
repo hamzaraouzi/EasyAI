@@ -30,10 +30,13 @@ class AbstractClassifier(nn.Module):
         pass
 
     @abstractmethod
-    def prepareModel(model_name: str, num_classes: int) -> nn.Module:
+    def prepareModel(
+        model_name: str, in_channels: int = 3, num_classes: int = 10
+    ) -> nn.Module:
         """Desired model paration.
 
         Args:
+            in_channels (int): input channels.
             num_classes (int): _description_
 
         Returns:
