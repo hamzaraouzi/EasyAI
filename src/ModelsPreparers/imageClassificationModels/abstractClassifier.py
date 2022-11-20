@@ -37,7 +37,7 @@ class AbstractClassifier(nn.Module):
 
         Args:
             in_channels (int): input channels.
-            num_classes (int): _description_
+            num_classes (int): number of classes.
 
         Returns:
             nn.Module: _description_
