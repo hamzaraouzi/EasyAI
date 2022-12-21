@@ -110,6 +110,6 @@ class MobileNetV1(AbstractClassifier):
             num_classes (int): _description_. Defaults to 10.
 
         Returns:
-            nn.Module: _description_
+            nn.Module: _description_.
         """
         return MobileNetV1(in_channels=3, num_classes=num_classes)
