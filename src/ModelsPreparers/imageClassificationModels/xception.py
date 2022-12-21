@@ -32,3 +32,31 @@ class Separable(nn.Module):
         x = self.pointwise_conv(x)
         x = self.deptwise_conv(x)
         return x
+
+
+class ConvBlock(nn.Module):
+    """ConvBlock class."""
+
+    def __init__(self, in_channels: int, out_channels: int, **kwrags) -> None:
+        """Init method of ConvBklock class.
+
+        Args:
+            in_channels (int): input channels.
+            out_channels (int): output channels.
+            **kwrags : args for nn.Convolution.
+        """
+        super(ConvBlock, self).__init__()
+        self.relu = nn.ReLU()
+        self.conv = nn.Conv2d(in_channels, out_channels, **kwrags)
+        self.bn = nn.BatchNorm2d()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """forward method of ConvBlock.
+
+        Args:
+            x (torch.Tensor): input tensor.
+
+        Returns:
+            torch.Tensor: output tensor.
+        """
+        return self.relu(self.bn(self.conv(x)))
