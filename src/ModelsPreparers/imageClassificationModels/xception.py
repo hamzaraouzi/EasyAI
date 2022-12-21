@@ -217,3 +217,49 @@ class ExitFlow(nn.Module):
         x_res = self.res(x)
         x = x_res.add(self.block(x))
         return self.tail(x)
+
+
+class Xception(nn.Module):
+    """Xception Module."""
+
+    def mFlows(self) -> nn.Sequential:
+        """method for creation a sequence of MiddleFLow blocks.
+
+        Returns:
+            nn.Sequential: sequence of MiddleFLow blocks
+        """
+        layers = []
+        for i in range(8):
+            layers.append(MiddleFlow())
+
+        return nn.Sequential(*layers)
+
+    def __init__(self, in_channels: int = 3, num_classes: int = 10):
+        """init method of Xception module.
+
+        Args:
+            in_channels (int): input channels. Defaults to 3.
+            num_classes (int): num classes. Defaults to 10.
+        """
+        super(Xception, self).__init__()
+
+        self.entry = EntryFlow(in_channels=in_channels)
+
+        self.middle_flow = self.mFlows()
+
+        self.exit_flow = ExitFlow(728, num_classes)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """forward method.
+
+        Args:
+            x (torch.Tensor): input tensor.
+
+        Returns:
+            torch.Tensor: output tensor.
+        """
+        x = self.entry(x)
+        x = self.middle_flow(x)
+        x = self.exit_flow(x)
+
+        return x
