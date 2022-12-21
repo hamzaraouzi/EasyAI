@@ -165,3 +165,55 @@ class MiddleFlow(nn.Module):
             torch.Tensor: output tensor.
         """
         return x.add(self.layers(x))
+
+
+class ExitFlow(nn.Module):
+    """ExitFlow Module."""
+
+    def __init__(self, num_classes: int = 10):
+        """init method of ExitFlow.
+
+        Args:
+            num_classes (int): number of classes. Defaults to 10.
+        """
+        super(ExitFlow, self).__init__()
+        self.res = nn.Sequential(
+            nn.Conv2d(728, 1024, kernel_size=1, stride=2), nn.BatchNorm2d(1024)
+        )
+
+        self.block = nn.Sequential(
+            nn.ReLU(),
+            Separable(728, 364, 728),
+            nn.ReLU(),
+            Separable(728, 512, 1024),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+        )
+
+        self.tail = nn.Sequential(
+            Separable(1024, 768, 1536),
+            nn.ReLU(),
+            Separable(1536, 1024, 2048),
+            nn.ReLU(),
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(1),
+            nn.Linear(2048, 1024),
+            nn.Dropout(p=0.2),
+            nn.ReLU(),
+            nn.Linear(1024, 512),
+            nn.Dropout(p=0.2),
+            nn.ReLU(),
+            nn.Linear(512, num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """forward method of Exitflow.
+
+        Args:
+            x (torch.Tensor): input tensor.
+
+        Returns:
+            torch.Tensor: output tensor.
+        """
+        x_res = self.res(x)
+        x = x_res.add(self.block(x))
+        return self.tail(x)
