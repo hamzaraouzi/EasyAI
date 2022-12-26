@@ -1,6 +1,7 @@
 """Xception architecture implementation."""
 import torch
 import torch.nn as nn
+from abstractClassifier import AbstractClassifier
 
 
 class Separable(nn.Module):
@@ -219,7 +220,7 @@ class ExitFlow(nn.Module):
         return self.tail(x)
 
 
-class Xception(nn.Module):
+class Xception(AbstractClassifier):
     """Xception Module."""
 
     def mFlows(self) -> nn.Sequential:
@@ -263,3 +264,16 @@ class Xception(nn.Module):
         x = self.exit_flow(x)
 
         return x
+
+    @staticmethod
+    def prepareModel(model_name: str, num_classes: int) -> nn.Module:
+        """MobileNet model preparation.
+
+        Args:
+            model_name (str): Model name.
+            num_classes (int): numer of classes.
+
+        Returns:
+            nn.Model: _description_
+        """
+        return Xception(num_classes=num_classes)
