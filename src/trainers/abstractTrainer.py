@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from ..trackers.abstractTracker import AbstractTracker
 import torch
 import os
+from .classificationTrainer import ClassificationTrainer
 
 
 class AbstractTrainer:
@@ -18,6 +19,7 @@ class AbstractTrainer:
         Args:
             config_path (str): config file path.
         """
+        self.config_path = config_path
         params2values, self.optimizer_parameters = self.load_check_conf_file(
             config_path
         )
@@ -141,6 +143,15 @@ class AbstractTrainer:
             val_loss (torch.Tensor): validation loss.
         """
         pass
+
+    def prepareTrainer(self):
+        """prepare trainer.
+
+        Returns:
+            _type_: _description_
+        """
+        if self.task == "classification":
+            return ClassificationTrainer(config_path=self.config_path)
 
     def __call__(
         self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader

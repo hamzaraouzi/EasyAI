@@ -1,0 +1,14 @@
+
+training:
+  - task: classification
+  - project: natural-image-classification
+  - num_epochs: 1
+  - device: cuda
+  - optimizer:
+        - name: Adam
+        - lr: 0.01
+  - earlystoping_after: 3
+  - experiment_tracker:
+      name: wandb
+      credetials:
+            key: xxxxx
