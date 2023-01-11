@@ -3,6 +3,11 @@ import torch.nn as nn
 import yaml
 
 from .imageClassificationModels.abstractClassifier import AbstractClassifier
+from .imageClassificationModels.mobileNetv1 import MobileNetV1
+from .imageClassificationModels.mobileNetv2 import MobileNetV2
+from .imageClassificationModels.mobileNetv3 import MobileNetV3
+from .imageClassificationModels.resnet import Resnet101, Resnet34
+from .imageClassificationModels.xception import Xception
 
 
 class ClassificationModel:
@@ -40,3 +45,45 @@ class ClassificationModel:
                 params2values[key] = values
 
         return params2values
+
+    def prepareModels(self) -> AbstractClassifier:
+        """prepare classification model.
+
+        Returns:
+            AbstractClassifier: classification model.
+        """
+        if self.model_name == "mobileNetV1":
+            return MobileNetV1.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name == "mobileNetV2":
+            return MobileNetV2.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name == "mobileNetV3":
+            return MobileNetV3.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name == "resnet101":
+            return Resnet101.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name == "resnet34":
+            return Resnet34.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name == "xception":
+            return Xception(self.num_classes)
+
+    def __call__(self) -> AbstractClassifier:
+        """prepare classification model.
+
+        Returns:
+            AbstractClassifier: classification model.
+        """
+        return self.prepareModels()
