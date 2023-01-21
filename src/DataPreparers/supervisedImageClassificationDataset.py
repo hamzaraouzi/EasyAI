@@ -5,6 +5,7 @@ from torch.utils.data import Dataset
 import os
 from PIL import Image
 import pandas as pd
+import torch.nn.functional as F
 
 
 class SupervisedImageClassicationDataset(Dataset):
@@ -22,6 +23,9 @@ class SupervisedImageClassicationDataset(Dataset):
         self.df.reset_index(inplace=True)
 
         self.target_column = "class"
+
+        self.classes = {cls: i for i, cls in enumerate(set(df[self.target_column]))}
+        self.num_classes = len(self.classes)
 
         self.img_dir = img_dir
         self.transform = transform
@@ -44,11 +48,12 @@ class SupervisedImageClassicationDataset(Dataset):
             image: torch.Tensor
             y : torch.Tensor
         """
-        y = self.df.loc[idx, self.target_column]
+        y = self.classes[self.df.loc[idx, self.target_column]]
+
         image_name = self.df.loc[idx, "image_name"]
 
         img_path = os.path.join(self.img_dir, image_name)
         img = Image.open(img_path).convert("RGB")
 
         img = self.transform(img) if self.transform is not None else img
-        return img, torch.tensor(y)
+        return img, F.one_hot(torch.LongTensor(y), num_classes=self.num_classes)
