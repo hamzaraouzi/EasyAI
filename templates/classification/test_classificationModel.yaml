@@ -1,5 +1,5 @@
 model:
   - task: classification
-  - name: Xception
-  - num_classes: 10
+  - name: xception
+  - num_classes: 8
   - pretrained: False

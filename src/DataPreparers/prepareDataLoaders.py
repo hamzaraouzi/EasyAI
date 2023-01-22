@@ -3,7 +3,7 @@
 
 import yaml
 import pandas as pd
-from supervisedImageClassificationDataset import SupervisedImageClassicationDataset
+from .supervisedImageClassificationDataset import SupervisedImageClassicationDataset
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 import albumentations as A
@@ -118,15 +118,13 @@ class PrepareDataLoader:
             train_ds = SupervisedImageClassicationDataset(
                 img_dir=self.img_dir,
                 df=train_df,
-                target_column=self.target_column,
                 transform=self.train_transfom,
             )
 
             test_ds = SupervisedImageClassicationDataset(
                 img_dir=self.img_dir,
                 df=test_df,
-                target_column=self.target_column,
-                transform=self.test_transfom,
+                transform=self.test_transform,
             )
 
             train_loader = DataLoader(
@@ -135,7 +133,7 @@ class PrepareDataLoader:
             test_loader = DataLoader(
                 test_ds, batch_size=self.batch_size, shuffle=True, num_workers=2
             )
-            return train_loader, test_loader
+            return train_loader, test_loader, None
 
         if self.split == "train-val-test":
 

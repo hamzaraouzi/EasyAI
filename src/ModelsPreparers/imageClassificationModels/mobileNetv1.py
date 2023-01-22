@@ -82,7 +82,7 @@ class MobileNetV1(AbstractClassifier):
                     SeparableConv(in_channels=512, out_channels=512, stride=1)
                 )
 
-        self.avg_pool = nn.AdaptiveAvgPool2d(kernel_size=7, stride=1)
+        self.avg_pool = nn.AvgPool2d(kernel_size=7, stride=1)
         self.fc = nn.Linear(1024, num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

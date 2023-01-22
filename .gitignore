@@ -1,0 +1,6 @@
+src/dataPreparers/__pycache__/*
+src/trainers/__pycache__/*
+src/trainers/trackers/__pycache__/*
+src/modelsPreparers/__pycache__/*
+src/modelsPreparers/imageClassificationModels/__pycache__/*
+wandb/*

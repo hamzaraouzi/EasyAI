@@ -6,6 +6,7 @@ import os
 from PIL import Image
 import pandas as pd
 import torch.nn.functional as F
+import numpy as np
 
 
 class SupervisedImageClassicationDataset(Dataset):
@@ -53,7 +54,8 @@ class SupervisedImageClassicationDataset(Dataset):
         image_name = self.df.loc[idx, "image_name"]
 
         img_path = os.path.join(self.img_dir, image_name)
-        img = Image.open(img_path).convert("RGB")
+        img = np.array(Image.open(img_path).convert("RGB"))
 
-        img = self.transform(img) if self.transform is not None else img
-        return img, F.one_hot(torch.LongTensor(y), num_classes=self.num_classes)
+        img = self.transform(image=img) if self.transform is not None else img
+
+        return img["image"], y

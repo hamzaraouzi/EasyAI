@@ -258,7 +258,7 @@ class MobileNetV3(AbstractClassifier):
             num_classes (int): _description_. Defaults to 10.
             width_multiplier (float, optional): _description_. Defaults to 1.0.
         """
-        super(self, MobileNetV3).__init__()
+        super(MobileNetV3, self).__init__()
 
         inverted_residual_parmeters = {
             "large": [

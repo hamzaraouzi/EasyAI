@@ -4,10 +4,10 @@ from abc import abstractmethod
 import yaml
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from ..trackers.abstractTracker import AbstractTracker
+from .trackers.abstractTracker import AbstractTracker
 import torch
 import os
-from .classificationTrainer import ClassificationTrainer
+from .trackers.wandbTracker import WandBTracker
 
 
 class AbstractTrainer:
@@ -65,9 +65,10 @@ class AbstractTrainer:
         Returns:
             AbstractTracker: _description_
         """
-        return AbstractTracker.prepareTracker(
-            project=self.project, tracking_conf=self.experiment_tracker
-        )
+        if self.experiment_tracker["name"] == "wandb":
+            return WandBTracker(
+                project=self.project, tracking_conf=self.experiment_tracker
+            )
 
     def save_best_weights(self, model: nn.Module, model_name: str) -> None:
         """save best weights.
@@ -143,15 +144,6 @@ class AbstractTrainer:
             val_loss (torch.Tensor): validation loss.
         """
         pass
-
-    def prepareTrainer(self):
-        """prepare trainer.
-
-        Returns:
-            _type_: _description_
-        """
-        if self.task == "classification":
-            return ClassificationTrainer(config_path=self.config_path)
 
     def __call__(
         self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader

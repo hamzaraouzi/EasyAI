@@ -1,7 +1,7 @@
 """a script that runs an end-to-end pipline."""
-from .modelsPreparers.ClassificationModel import ClassificationModel
-from .dataPreparers.prepareDataLoaders import PrepareDataLoader
-from .trainers.abstractTrainer import AbstractTrainer
+from modelsPreparers.ClassificationModel import ClassificationModel
+from dataPreparers.prepareDataLoaders import PrepareDataLoader
+from trainers.classificationTrainer import ClassificationTrainer
 import click
 
 
@@ -25,7 +25,7 @@ def main(data_conf: str, model_conf: str, trainer_conf: str):
     model_preparer = ClassificationModel(config_path=model_conf)
     model = model_preparer()
 
-    trainer = AbstractTrainer(config_path=trainer_conf)
+    trainer = ClassificationTrainer(config_path=trainer_conf)
     trainer(model=model, train_loader=train_loader, val_loader=val_loader)
 
 

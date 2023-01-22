@@ -78,7 +78,7 @@ class ClassificationModel:
             )
 
         if self.model_name == "xception":
-            return Xception(self.num_classes)
+            return Xception(num_classes=self.num_classes)
 
     def __call__(self) -> AbstractClassifier:
         """prepare classification model.
