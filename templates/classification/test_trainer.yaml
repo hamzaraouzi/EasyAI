@@ -2,7 +2,7 @@
 training:
   - task: classification
   - project: natural-image-classification
-  - num_epochs: 5
+  - num_epochs: 20
   - device: cuda
   - optimizer:
         - name: Adam
@@ -10,6 +10,9 @@ training:
         - betas: [0.9, 0.999]
         - weight_decay: 0
   - earlystoping_after: 3
+  - monitor_metric:
+      name: val_acc
+      mode: max
   - experiment_tracker:
       name: wandb
       credentials:

@@ -98,7 +98,7 @@ class ClassificationTrainer(AbstractTrainer):
         y_val_pred: torch.Tensor,
         train_loss: float,
         val_loss: float,
-    ) -> None:
+    ) -> dict:
         """logging metircs to experiment tracking tool.
 
         Args:
@@ -109,6 +109,9 @@ class ClassificationTrainer(AbstractTrainer):
             y_val_pred (torch.Tensor): predictions from validation set.
             train_loss (float): training loss.
             val_loss (float): validation loss.
+
+        Returns:
+            dict: dictionary of classification metrics.
         """
         if self.task == "binary-classification":
             acc_fn = BinaryAccuracy()
@@ -135,6 +138,8 @@ class ClassificationTrainer(AbstractTrainer):
         }
         exp_tracker.log_metrics(metrics=metrics)
 
+        return metrics
+
     def train(self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader):
         """training function.
 
@@ -156,7 +161,9 @@ class ClassificationTrainer(AbstractTrainer):
         exp_tracker.init(config=None)
 
         optimizer = self.define_optimizer(model)
-        best_accuracy = 0
+        best_metric = (
+            float("-inf") if self.monitor_metric["mode"] == "max" else float("inf")
+        )
         for epoch in range(self.num_epochs):
             train_loss, y_train_true, y_train_pred = model.one_train_epoch(
                 train_loader=train_loader,
@@ -169,30 +176,33 @@ class ClassificationTrainer(AbstractTrainer):
                 val_loader=val_loader, criterion=self.criterion, device=self.device
             )
 
-            train_accuracy, val_accuracy = self.log_metrics(
-                exp_tracker,
-                y_train_true.cpu(),
-                y_train_pred.cpu(),
-                y_val_true.cpu(),
-                y_val_pred.cpu(),
-                train_loss,
-                val_loss,
+            metrics = self.log_metrics(
+                exp_tracker=exp_tracker,
+                y_train_true=y_train_true.cpu(),
+                y_train_pred=y_train_pred.cpu(),
+                y_val_true=y_val_true.cpu(),
+                y_val_pred=y_val_pred.cpu(),
+                train_loss=train_loss,
+                val_loss=val_loss,
             )
 
             no_improvement = 0
-            if val_accuracy > best_accuracy:
+            if (
+                metrics[self.monitor_metric["name"]] > best_metric
+                and self.monitor_metric["mode"] == "max"
+                or metrics[self.monitor_metric["name"]] < best_metric
+                and self.monitor_metric["mode"] == "min"
+            ):
 
                 model_name = model.name
                 self.save_best_weights(model, model_name=model_name)
-                best_accuracy = val_accuracy
+                best_metric = metrics[self.monitor_metric["name"]]
                 no_improvement = 0
 
             # early stopping
-            elif val_accuracy <= best_accuracy and no_improvement < self.early_stopping:
+            elif no_improvement < self.early_stopping:
                 no_improvement += 1
-            elif (
-                val_accuracy <= best_accuracy and no_improvement == self.early_stopping
-            ):
+            else:
                 # log a message that no improvement has been made for the {no_improvement} epochs
                 break
 

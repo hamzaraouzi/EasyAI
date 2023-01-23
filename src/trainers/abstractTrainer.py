@@ -29,6 +29,7 @@ class AbstractTrainer:
         self.early_stopping = params2values["earlystoping_after"]
         self.project = params2values["project"]
         self.experiment_tracker = params2values["experiment_tracker"]
+        self.monitor_metric = params2values["monitor_metric"]
 
     def load_check_conf_file(self, config_path: str):
         """method for loading the configuration from a yaml file.
