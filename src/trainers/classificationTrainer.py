@@ -96,8 +96,8 @@ class ClassificationTrainer(AbstractTrainer):
         y_train_pred: torch.Tensor,
         y_val_true: torch.Tensor,
         y_val_pred: torch.Tensor,
-        train_loss: torch.Tensor,
-        val_loss: torch.Tensor,
+        train_loss: float,
+        val_loss: float,
     ) -> None:
         """logging metircs to experiment tracking tool.
 
@@ -107,8 +107,8 @@ class ClassificationTrainer(AbstractTrainer):
             y_train_pred (torch.Tensor): predcitions on training set.
             y_val_true (torch.Tensor): groundtruth from validation set.
             y_val_pred (torch.Tensor): predictions from validation set.
-            train_loss (torch.Tensor): training loss.
-            val_loss (torch.Tensor): validation loss.
+            train_loss (float): training loss.
+            val_loss (float): validation loss.
         """
         if self.task == "binary-classification":
             acc_fn = BinaryAccuracy()
@@ -128,8 +128,8 @@ class ClassificationTrainer(AbstractTrainer):
         metrics = {
             "train_accuracy": train_accuracy,
             "val_accuracy": val_accuracy,
-            "train_loss": train_loss.item(),
-            "val_loss": val_loss.item(),
+            "train_loss": train_loss,
+            "val_loss": val_loss,
             "train_precision": train_precision.item(),
             "val_precision": val_precision.item(),
         }
