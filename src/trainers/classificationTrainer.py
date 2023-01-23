@@ -194,8 +194,7 @@ class ClassificationTrainer(AbstractTrainer):
                 and self.monitor_metric["mode"] == "min"
             ):
 
-                model_name = model.name
-                self.save_best_weights(model, model_name=model_name)
+                self.save_best_weights(model, model_name=model.model_name)
                 best_metric = metrics[self.monitor_metric["name"]]
                 no_improvement = 0
 
