@@ -3,7 +3,12 @@ from typing import Optional
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.optim as optim
-from sklearn.metrics import accuracy_score, f1_score
+from torchmetrics.classification import (
+    BinaryAccuracy,
+    MulticlassAccuracy,
+    BinaryPrecision,
+    MulticlassPrecision,
+)
 from .abstractTrainer import AbstractTrainer
 from .trackers.abstractTracker import AbstractTracker
 import torch
@@ -105,17 +110,19 @@ class ClassificationTrainer(AbstractTrainer):
             train_loss (torch.Tensor): training loss.
             val_loss (torch.Tensor): validation loss.
         """
-        train_accuracy = accuracy_score(
-            y_train_true.detach().cpu(), y_train_pred.detach().cpu() > 0.5
-        )
-        val_accuracy = accuracy_score(
-            y_val_true.detach().cpu(), y_val_pred.detach().cpu() > 0.5
-        )
-        # calculate  F1-scores
-        train_f1 = f1_score(
-            y_train_true.detach().cpu(), y_train_pred.detach().cpu() > 0.5
-        )
-        val_f1 = f1_score(y_val_true.detach().cpu(), y_val_pred.detach().cpu() > 0.5)
+        if self.task == "binary-classification":
+            acc_fn = BinaryAccuracy()
+            precision_fn = BinaryPrecision()
+        else:
+            num_classes = y_train_true.shape[-1]
+            acc_fn = MulticlassAccuracy(num_classes=num_classes)
+            precision_fn = MulticlassPrecision(num_classes=num_classes)
+
+        train_accuracy = acc_fn(y_train_pred, y_train_true)
+        val_accuracy = acc_fn(y_val_pred, y_val_true)
+
+        train_precision = precision_fn(y_train_pred, y_train_true)
+        val_precision = precision_fn(y_val_pred, y_val_true)
 
         # calculate and logging (recall) other metrics
         metrics = {
@@ -123,8 +130,8 @@ class ClassificationTrainer(AbstractTrainer):
             "val_accuracy": val_accuracy,
             "train_loss": train_loss.item(),
             "val_loss": val_loss.item(),
-            "train_f1_score": train_f1,
-            "val_f1_score": val_f1,
+            "train_precision": train_precision.item(),
+            "val_precision": val_precision.item(),
         }
         exp_tracker.log_metrics(metrics=metrics)
 
@@ -164,7 +171,6 @@ class ClassificationTrainer(AbstractTrainer):
 
             train_accuracy, val_accuracy = self.log_metrics(
                 exp_tracker,
-                model,
                 y_train_true,
                 y_train_pred,
                 y_val_true,
