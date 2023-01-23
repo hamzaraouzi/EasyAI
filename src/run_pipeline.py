@@ -1,6 +1,6 @@
 """a script that runs an end-to-end pipline."""
-from modelsPreparers.ClassificationModel import ClassificationModel
-from dataPreparers.prepareDataLoaders import PrepareDataLoader
+from ModelsPreparers.ClassificationModel import ClassificationModel
+from DataPreparers.prepareDataLoaders import PrepareDataLoader
 from trainers.classificationTrainer import ClassificationTrainer
 import click
 
