@@ -2,8 +2,8 @@
 training:
   - task: classification
   - project: natural-image-classification
-  - num_epochs: 1
-  - device: cpu
+  - num_epochs: 5
+  - device: cuda
   - optimizer:
         - name: Adam
         - lr: 0.01

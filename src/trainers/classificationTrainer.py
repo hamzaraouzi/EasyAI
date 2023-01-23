@@ -114,7 +114,7 @@ class ClassificationTrainer(AbstractTrainer):
             acc_fn = BinaryAccuracy()
             precision_fn = BinaryPrecision()
         else:
-            num_classes = y_train_true.shape[-1]
+            num_classes = y_train_pred.shape[-1]
             acc_fn = MulticlassAccuracy(num_classes=num_classes)
             precision_fn = MulticlassPrecision(num_classes=num_classes)
 
