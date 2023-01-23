@@ -11,7 +11,7 @@ from .imageClassificationModels.xception import Xception
 
 
 class ClassificationModel:
-    """Classification Model is a class that will manage loading and preparation of desired model."""
+    """Classification Model is a class that will manage loading and preparation of desired modelll."""
 
     def __init__(self, config_path: str) -> None:
         """Init method for classificationModel class.
