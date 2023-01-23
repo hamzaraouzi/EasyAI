@@ -171,10 +171,10 @@ class ClassificationTrainer(AbstractTrainer):
 
             train_accuracy, val_accuracy = self.log_metrics(
                 exp_tracker,
-                y_train_true,
-                y_train_pred,
-                y_val_true,
-                y_val_pred,
+                y_train_true.cpu(),
+                y_train_pred.cpu(),
+                y_val_true.cpu(),
+                y_val_pred.cpu(),
                 train_loss,
                 val_loss,
             )
