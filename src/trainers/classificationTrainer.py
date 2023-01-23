@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 import torch.optim as optim
 from sklearn.metrics import accuracy_score, f1_score
 from .abstractTrainer import AbstractTrainer
-from ..trackers.abstractTracker import AbstractTracker
+from .trackers.abstractTracker import AbstractTracker
 import torch
 
 
@@ -43,10 +43,11 @@ class ClassificationTrainer(AbstractTrainer):
             optim.Optimizer: optimizer.
         """
         if self.optimizer_parameters["name"] == "Adam":
+
             return optim.Adam(
                 model.parameters(),
                 lr=self.optimizer_parameters["lr"],
-                betas=self.optimizer_parameters["betas"],
+                betas=tuple(self.optimizer_parameters["betas"]),
                 weight_decay=self.optimizer_parameters["weight_decay"],
             )
 
@@ -137,7 +138,15 @@ class ClassificationTrainer(AbstractTrainer):
         """
         model.to(device=self.device)
         exp_tracker = self.prepare_exp_tracker()
-        exp_tracker.init()
+
+        # TODO in config we need to log some metadata for example
+        # config = {
+        #    "dataset": "CIFAR10",
+        #    "model": "CNN",
+        #    "learning_rate": 0.01,
+        #    "batch_size": 128,
+        #    }
+        exp_tracker.init(config=None)
 
         optimizer = self.define_optimizer(model)
         best_accuracy = 0

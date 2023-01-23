@@ -1,7 +1,7 @@
 """Xception architecture implementation."""
 import torch
 import torch.nn as nn
-from abstractClassifier import AbstractClassifier
+from .abstractClassifier import AbstractClassifier
 
 
 class Separable(nn.Module):
@@ -49,7 +49,7 @@ class ConvBlock(nn.Module):
         super(ConvBlock, self).__init__()
         self.relu = nn.ReLU()
         self.conv = nn.Conv2d(in_channels, out_channels, **kwrags)
-        self.bn = nn.BatchNorm2d()
+        self.bn = nn.BatchNorm2d(out_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward method of ConvBlock.
@@ -171,10 +171,11 @@ class MiddleFlow(nn.Module):
 class ExitFlow(nn.Module):
     """ExitFlow Module."""
 
-    def __init__(self, num_classes: int = 10):
+    def __init__(self, in_channels: int, num_classes: int = 10):
         """init method of ExitFlow.
 
         Args:
+            in_channels (int): input channels.
             num_classes (int): number of classes. Defaults to 10.
         """
         super(ExitFlow, self).__init__()
@@ -243,7 +244,6 @@ class Xception(AbstractClassifier):
             num_classes (int): num classes. Defaults to 10.
         """
         super(Xception, self).__init__()
-
         self.entry = EntryFlow(in_channels=in_channels)
 
         self.middle_flow = self.mFlows()
@@ -266,14 +266,17 @@ class Xception(AbstractClassifier):
         return x
 
     @staticmethod
-    def prepareModel(model_name: str, num_classes: int) -> nn.Module:
+    def prepareModel(
+        model_name: str, num_classes: int, in_channels: int = 3
+    ) -> nn.Module:
         """MobileNet model preparation.
 
         Args:
             model_name (str): Model name.
-            num_classes (int): numer of classes.
+            num_classes (int): number of classes.
+            in_channels (int): input channels.
 
         Returns:
             nn.Model: _description_
         """
-        return Xception(num_classes=num_classes)
+        return Xception(in_channels=in_channels, num_classes=num_classes)

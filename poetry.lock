@@ -129,7 +129,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "imageio"
-version = "2.24.0"
+version = "2.25.0"
 description = "Library for reading and writing a wide range of image, video, scientific, and volumetric data formats."
 category = "main"
 optional = false
@@ -482,7 +482,7 @@ test = ["asv", "gmpy2", "mpmath", "pytest", "pytest-cov", "pytest-xdist", "sciki
 
 [[package]]
 name = "sentry-sdk"
-version = "1.13.0"
+version = "1.14.0"
 description = "Python client for Sentry (https://sentry.io)"
 category = "main"
 optional = false
@@ -503,7 +503,7 @@ falcon = ["falcon (>=1.4)"]
 fastapi = ["fastapi (>=0.79.0)"]
 flask = ["blinker (>=1.1)", "flask (>=0.11)"]
 httpx = ["httpx (>=0.16.0)"]
-opentelemetry = ["opentelemetry-distro (>=0.350b0)"]
+opentelemetry = ["opentelemetry-distro (>=0.35b0)"]
 pure_eval = ["asttokens", "executing", "pure-eval"]
 pymongo = ["pymongo (>=3.1)"]
 pyspark = ["pyspark (>=2.4.4)"]
@@ -576,17 +576,17 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "tifffile"
-version = "2022.10.10"
+version = "2023.1.23.1"
 description = "Read and write TIFF files"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 
 [package.dependencies]
-numpy = ">=1.19.2"
+numpy = "*"
 
 [package.extras]
-all = ["fsspec", "imagecodecs (>=2022.2.22)", "lxml", "matplotlib (>=3.3)", "zarr"]
+all = ["defusedxml", "fsspec", "imagecodecs (>=2023.1.23)", "lxml", "matplotlib", "zarr"]
 
 [[package]]
 name = "toml"
@@ -860,8 +860,8 @@ idna = [
     {file = "idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
 ]
 imageio = [
-    {file = "imageio-2.24.0-py3-none-any.whl", hash = "sha256:c4ccd0293a1aeb566c7fa04260d51897be064b8fb287a77548ce42050ec06d7a"},
-    {file = "imageio-2.24.0.tar.gz", hash = "sha256:f240f8229f4f329a1546281194b52da5d6694141a524668fed3f81b0d07782fa"},
+    {file = "imageio-2.25.0-py3-none-any.whl", hash = "sha256:9ef2fdef1235eef849b1aea399f08508493624a2a2c8cc3bba957dabb7d0b79f"},
+    {file = "imageio-2.25.0.tar.gz", hash = "sha256:b80796a1f8c38c697a940a2ad7397ee28900d5c4e51061b9a67d16aca867f33e"},
 ]
 interrogate = [
     {file = "interrogate-1.5.0-py3-none-any.whl", hash = "sha256:a4ccc5cbd727c74acc98dee6f5e79ef264c0bcfa66b68d4e123069b2af89091a"},
@@ -1235,8 +1235,8 @@ scipy = [
     {file = "scipy-1.9.3.tar.gz", hash = "sha256:fbc5c05c85c1a02be77b1ff591087c83bc44579c6d2bd9fb798bb64ea5e1a027"},
 ]
 sentry-sdk = [
-    {file = "sentry-sdk-1.13.0.tar.gz", hash = "sha256:72da0766c3069a3941eadbdfa0996f83f5a33e55902a19ba399557cfee1dddcc"},
-    {file = "sentry_sdk-1.13.0-py2.py3-none-any.whl", hash = "sha256:b7ff6318183e551145b5c4766eb65b59ad5b63ff234dffddc5fb50340cad6729"},
+    {file = "sentry-sdk-1.14.0.tar.gz", hash = "sha256:273fe05adf052b40fd19f6d4b9a5556316807246bd817e5e3482930730726bb0"},
+    {file = "sentry_sdk-1.14.0-py2.py3-none-any.whl", hash = "sha256:72c00322217d813cf493fe76590b23a757e063ff62fec59299f4af7201dd4448"},
 ]
 setproctitle = [
     {file = "setproctitle-1.3.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:288943dec88e178bb2fd868adf491197cc0fc8b6810416b1c6775e686bab87fe"},
@@ -1321,8 +1321,8 @@ threadpoolctl = [
     {file = "threadpoolctl-3.1.0.tar.gz", hash = "sha256:a335baacfaa4400ae1f0d8e3a58d6674d2f8828e3716bb2802c44955ad391380"},
 ]
 tifffile = [
-    {file = "tifffile-2022.10.10-py3-none-any.whl", hash = "sha256:87f3aee8a0d06b74655269a105de75c1958a24653e1930d523eb516100043503"},
-    {file = "tifffile-2022.10.10.tar.gz", hash = "sha256:50b61ba943b866d191295bc38a00191c9fdab23ece063544c7f1a264e3f6aa8e"},
+    {file = "tifffile-2023.1.23.1-py3-none-any.whl", hash = "sha256:2b626a8ee81b692e1fa5320201a4b70f1915d2567945e68665621a75a12b3730"},
+    {file = "tifffile-2023.1.23.1.tar.gz", hash = "sha256:a3d0c149cc7faef796fd598856314f43fdcd0895c79c3cb662a38c1c1bd49572"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},

@@ -195,6 +195,7 @@ class MobileNetV2(AbstractClassifier):
                 in_channels = out_channels
 
         self.features.append(conv_1x1_bn(in_channels, self.last_channels_dim))
+        self.features = nn.Sequential(*self.features)
         self.avg_pool = nn.AvgPool2d(kernel_size=7, stride=1)
         self.classifier = nn.Linear(self.last_channels_dim, num_classes)
 

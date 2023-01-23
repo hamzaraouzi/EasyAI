@@ -1,5 +1,5 @@
 """wights and biases tracker."""
-from abstractTracker import AbstractTracker
+from .abstractTracker import AbstractTracker
 import wandb
 
 
