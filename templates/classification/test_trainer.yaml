@@ -11,7 +11,7 @@ training:
         - weight_decay: 0
   - earlystoping_after: 3
   - monitor_metric:
-      name: val_acc
+      name: val_accuracy
       mode: max
   - experiment_tracker:
       name: wandb
