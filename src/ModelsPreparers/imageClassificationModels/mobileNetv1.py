@@ -112,4 +112,6 @@ class MobileNetV1(AbstractClassifier):
         Returns:
             nn.Module: _description_.
         """
-        return MobileNetV1(in_channels=3, num_classes=num_classes)
+        return MobileNetV1(
+            model_name=model_name, in_channels=3, num_classes=num_classes
+        )

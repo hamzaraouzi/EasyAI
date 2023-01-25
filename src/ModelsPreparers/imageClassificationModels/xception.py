@@ -281,4 +281,6 @@ class Xception(AbstractClassifier):
         Returns:
             nn.Model: _description_
         """
-        return Xception(in_channels=in_channels, num_classes=num_classes)
+        return Xception(
+            model_name=model_name, in_channels=in_channels, num_classes=num_classes
+        )

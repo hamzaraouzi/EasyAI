@@ -59,14 +59,16 @@ class Residual_blockC(nn.Module):
 class Resnet101(AbstractClassifier):
     """Resnet101 class."""
 
-    def __init__(self, in_channels: int = 3, num_classes: int = 10):
+    def __init__(self, model_name: str, in_channels: int = 3, num_classes: int = 10):
         """Init method for Resnet101 class.
 
         Args:
+            model_name (str): model name.
             in_channels (int): input channels . Defaults to 3.
             num_classes (int): number of classes. Defaults to 10.
         """
         super().__init__()
+        self.model_name = model_name
         self.in_channels = in_channels
         self.num_classes = num_classes
 
@@ -208,7 +210,9 @@ class Resnet101(AbstractClassifier):
         Returns:
             nn.Module: _description_
         """
-        return Resnet101(in_channels=in_channels, num_classes=num_classes)
+        return Resnet101(
+            model_name=model_name, in_channels=in_channels, num_classes=num_classes
+        )
 
 
 class Residual_blockB(nn.Module):
@@ -270,14 +274,16 @@ class Residual_blockB(nn.Module):
 class Resnet34(AbstractClassifier):
     """Implementation Resnet34."""
 
-    def __init__(self, in_channels: int = 3, num_classes: int = 10):
+    def __init__(self, model_name: str, in_channels: int = 3, num_classes: int = 10):
         """Init method for Resnet101 class.
 
         Args:
+            model_name (str): model_name.
             in_channels (int): input channels . Defaults to 3.
             num_classes (int): number of classes. Defaults to 10.
         """
         super(Resnet34, self).__init__()
+        self.model_name = model_name
         self.in_channels = in_channels
         self.num_classes = num_classes
 
@@ -375,4 +381,4 @@ class Resnet34(AbstractClassifier):
         Returns:
             nn.Module: _description_
         """
-        return Resnet34(in_channels=3, num_classes=num_classes)
+        return Resnet34(model_name=model_name, in_channels=3, num_classes=num_classes)
