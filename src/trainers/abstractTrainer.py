@@ -79,7 +79,7 @@ class AbstractTrainer:
             model_name (str):  model name.
         """
         os.makedirs("../checkpoints", exist_ok=True)
-        torch.save(model, f"../checkpoints/{model_name}.pt")
+        torch.save(model, f"../checkpoints/{model_name}.pth")
 
     @abstractmethod
     def define_criterion(self):
@@ -143,6 +143,14 @@ class AbstractTrainer:
             y_val_pred (torch.Tensor): predictions from validation set.
             train_loss (torch.Tensor): training loss.
             val_loss (torch.Tensor): validation loss.
+        """
+        pass
+
+    def log_checkpoint(self, ckpt_path: str = "../checkpoints/*"):
+        """log best weights to experiment tracker.
+
+        Args:
+            ckpt_path (str): _description_. Defaults to "../checkpoints".
         """
         pass
 

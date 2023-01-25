@@ -140,7 +140,9 @@ class ClassificationTrainer(AbstractTrainer):
 
         return metrics
 
-    def train(self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader):
+    def train(
+        self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
+    ) -> None:
         """training function.
 
         Args:
@@ -204,6 +206,8 @@ class ClassificationTrainer(AbstractTrainer):
             else:
                 # log a message that no improvement has been made for the {no_improvement} epochs
                 break
+
+        exp_tracker.log_checkpoint()
 
     def run(
         self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
