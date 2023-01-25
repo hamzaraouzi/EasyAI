@@ -43,6 +43,7 @@ class WandBTracker(AbstractTracker):
             ckpt_path (str): _description_. Defaults to "../checkpoints".
         """
         self.artifact.add_dir("../checkpoints")
+        wandb.log_artifact(self.artifact)
 
     def __call__(self, metrics: dict) -> None:
         """logging metrics to wandb.
