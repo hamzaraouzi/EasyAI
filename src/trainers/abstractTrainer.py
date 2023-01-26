@@ -1,5 +1,5 @@
 """Abstract Trainer."""
-from typing import Optional
+from typing import Optional, Union
 from abc import abstractmethod
 import yaml
 import torch.nn as nn
@@ -8,6 +8,15 @@ from .trackers.abstractTracker import AbstractTracker
 import torch
 import os
 from .trackers.wandbTracker import WandBTracker
+from torch.optim.lr_scheduler import (
+    _LRScheduler,
+    StepLR,
+    MultiStepLR,
+    ExponentialLR,
+    CyclicLR,
+    ReduceLROnPlateau,
+)
+from torch.optim import Optimizer
 
 
 class AbstractTrainer:
@@ -30,6 +39,14 @@ class AbstractTrainer:
         self.project = params2values["project"]
         self.experiment_tracker = params2values["experiment_tracker"]
         self.monitor_metric = params2values["monitor_metric"]
+
+        self.lr_schedular_conf = (
+            params2values["learning_rate_schedular"]
+            if "learning_rate_schedular" in params2values.keys()
+            else None
+        )
+
+        self.optimizer = None  # it
 
     def load_check_conf_file(self, config_path: str):
         """method for loading the configuration from a yaml file.
@@ -69,6 +86,53 @@ class AbstractTrainer:
         if self.experiment_tracker["name"] == "wandb":
             return WandBTracker(
                 project=self.project, tracking_conf=self.experiment_tracker
+            )
+
+    def prepare_lr_schedular(self) -> Union[Optimizer, _LRScheduler]:
+        """prepare learning rate schedulars.
+
+        Returns:
+            Union[Optimizer, _LRScheduler]: the optimizer or the learning rate schedular.
+        """
+        if self.lr_schedular_conf is None:
+            return self.optimizer
+
+        if self.lr_schedular_conf["name"] == "stepLR":
+            return StepLR(
+                optimizer=self.optimizer,
+                step_size=self.lr_schedular_conf["step_size"],
+                verbose=True,
+            )
+
+        if self.lr_schedular_conf["name"] == "multistepLR":
+            return MultiStepLR(
+                optimizer=self.optimizer,
+                milestones=self.lr_schedular_conf["milestones"],
+                gamma=self.lr_schedular_conf["gamma"],
+                verbose=True,
+            )
+
+        if self.lr_schedular_conf["name"] == "exponentialLR":
+            return ExponentialLR(
+                optimizer=self.optimizer,
+                gamma=self.lr_schedular_conf["gamma"],
+                verbose=True,
+            )
+
+        if self.lr_schedular_conf["name"] == "cyclicalLR":
+            return CyclicLR(
+                optimizer=self.optimizer,
+                base_lr=self.lr_schedular_conf["base_lr"],
+                max_lr=self.lr_schedular_conf["max_lr"],
+                step_size_up=self.lr_schedular_conf["step_size_up"],
+                mode=self.lr_schedular_conf["mode"],
+                verbose=True,
+            )
+        if self.lr_schedular_conf["name"] == "reduceLROnPlateau":
+            return ReduceLROnPlateau(
+                optimizer=self.optimizer,
+                factor=self.lr_schedular_conf["factor"],
+                patience=self.lr_schedular_conf["patience"],
             )
 
     def save_best_weights(self, model: nn.Module, model_name: str) -> None:

@@ -369,4 +369,4 @@ class MobileNetV3(AbstractClassifier):
         Returns:
             nn.Model: _description_
         """
-        return MobileNetV3(mode="large", num_classes=num_classes)
+        return MobileNetV3(model_name=model_name, mode="large", num_classes=num_classes)

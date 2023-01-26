@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from typing import Literal, Tuple
+from typing import Literal, Tuple, Union
 
 
 class AbstractClassifier(nn.Module):
@@ -79,7 +79,7 @@ class AbstractClassifier(nn.Module):
         self,
         train_loader: DataLoader,
         criterion: nn.Module,
-        optimizer: torch.optim.Optimizer,
+        optimizer: Union[torch.optim.Optimizer, torch.optim.lr_scheduler._LRScheduler],
         device: Literal["cuda", "cpu"] = "cuda",
     ) -> Tuple[float, torch.Tensor, torch.Tensor]:
         """Training epoch.
@@ -87,7 +87,7 @@ class AbstractClassifier(nn.Module):
         Args:
             train_loader (DataLoader): _description_
             criterion (nn.Module): _description_
-            optimizer (torch.optim.Optimizer): _description_
+            optimizer (Union[Optimizer, _LRScheduler]): the optimizer or the learning rate schedular.
             device (Literal['cuda', 'cpu'], optional): trainig hardware. Defaults to "cuda".
 
         Returns:

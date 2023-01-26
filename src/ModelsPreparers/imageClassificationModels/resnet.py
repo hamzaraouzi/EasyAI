@@ -41,6 +41,32 @@ class Residual_blockC(nn.Module):
                 nn.BatchNorm2d(self.intermidiate_channels * 4),
             )
 
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(
+                self.in_channels, self.intermidiate_channels, kernel_size=1, bias=False
+            ),
+            nn.BatchNorm2d(self.intermidiate_channels),
+            nn.ReLU(),
+            nn.Conv2d(
+                self.intermidiate_channels,
+                self.intermidiate_channels,
+                kernel_size=3,
+                stride=stride,
+                padding=1,
+                bias=False,
+            ),
+            nn.BatchNorm2d(self.intermidiate_channels),
+            nn.ReLU(),
+            nn.Conv2d(
+                self.intermidiate_channels,
+                self.intermidiate_channels * 4,
+                kernel_size=1,
+                stride=1,
+                bias=False,
+            ),
+            nn.BatchNorm2d(self.intermidiate_channels * 4),
+        )
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward pass of Residual_blockC.
 
