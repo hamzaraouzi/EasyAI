@@ -45,7 +45,7 @@ class AbstractTrainer:
             if "learning_rate_scheduler" in params2values.keys()
             else None
         )
-
+        print(self.lr_schedular_conf, "------")
         self.optimizer = None  # it
 
     def load_check_conf_file(self, config_path: str):
