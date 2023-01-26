@@ -41,8 +41,8 @@ class AbstractTrainer:
         self.monitor_metric = params2values["monitor_metric"]
 
         self.lr_schedular_conf = (
-            params2values["learning_rate_schedular"]
-            if "learning_rate_schedular" in params2values.keys()
+            params2values["learning_rate_scheduler"]
+            if "learning_rate_scheduler" in params2values.keys()
             else None
         )
 
@@ -98,6 +98,7 @@ class AbstractTrainer:
             return self.optimizer
 
         if self.lr_schedular_conf["name"] == "stepLR":
+            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return StepLR(
                 optimizer=self.optimizer,
                 step_size=self.lr_schedular_conf["step_size"],
@@ -105,6 +106,7 @@ class AbstractTrainer:
             )
 
         if self.lr_schedular_conf["name"] == "multistepLR":
+            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return MultiStepLR(
                 optimizer=self.optimizer,
                 milestones=self.lr_schedular_conf["milestones"],
@@ -113,6 +115,7 @@ class AbstractTrainer:
             )
 
         if self.lr_schedular_conf["name"] == "exponentialLR":
+            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return ExponentialLR(
                 optimizer=self.optimizer,
                 gamma=self.lr_schedular_conf["gamma"],
@@ -120,6 +123,7 @@ class AbstractTrainer:
             )
 
         if self.lr_schedular_conf["name"] == "cyclicalLR":
+            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return CyclicLR(
                 optimizer=self.optimizer,
                 base_lr=self.lr_schedular_conf["base_lr"],
@@ -129,10 +133,12 @@ class AbstractTrainer:
                 verbose=True,
             )
         if self.lr_schedular_conf["name"] == "reduceLROnPlateau":
+            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return ReduceLROnPlateau(
                 optimizer=self.optimizer,
                 factor=self.lr_schedular_conf["factor"],
                 patience=self.lr_schedular_conf["patience"],
+                verbose=True,
             )
 
     def save_best_weights(self, model: nn.Module, model_name: str) -> None:
