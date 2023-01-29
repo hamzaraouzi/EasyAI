@@ -14,7 +14,7 @@ training:
         - name: stepLR
         - step_size: 2
 
-  - earlystoping_after: 3
+  - earlystoping_after: 10
   - monitor_metric:
       name: val_accuracy
       mode: max

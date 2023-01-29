@@ -17,6 +17,7 @@ from torch.optim.lr_scheduler import (
     ReduceLROnPlateau,
 )
 from torch.optim import Optimizer
+from collections import ChainMap
 
 
 class AbstractTrainer:
@@ -41,11 +42,11 @@ class AbstractTrainer:
         self.monitor_metric = params2values["monitor_metric"]
 
         self.lr_schedular_conf = (
-            params2values["learning_rate_scheduler"]
+            dict(ChainMap(*params2values["learning_rate_scheduler"]))
             if "learning_rate_scheduler" in params2values.keys()
             else None
         )
-        print(self.lr_schedular_conf, "------")
+
         self.optimizer = None  # it
 
     def load_check_conf_file(self, config_path: str):
@@ -98,7 +99,6 @@ class AbstractTrainer:
             return self.optimizer
 
         if self.lr_schedular_conf["name"] == "stepLR":
-            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return StepLR(
                 optimizer=self.optimizer,
                 step_size=self.lr_schedular_conf["step_size"],
@@ -106,7 +106,6 @@ class AbstractTrainer:
             )
 
         if self.lr_schedular_conf["name"] == "multistepLR":
-            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return MultiStepLR(
                 optimizer=self.optimizer,
                 milestones=self.lr_schedular_conf["milestones"],
@@ -115,7 +114,6 @@ class AbstractTrainer:
             )
 
         if self.lr_schedular_conf["name"] == "exponentialLR":
-            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return ExponentialLR(
                 optimizer=self.optimizer,
                 gamma=self.lr_schedular_conf["gamma"],
@@ -123,7 +121,6 @@ class AbstractTrainer:
             )
 
         if self.lr_schedular_conf["name"] == "cyclicalLR":
-            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return CyclicLR(
                 optimizer=self.optimizer,
                 base_lr=self.lr_schedular_conf["base_lr"],
@@ -133,7 +130,6 @@ class AbstractTrainer:
                 verbose=True,
             )
         if self.lr_schedular_conf["name"] == "reduceLROnPlateau":
-            print("+++++++++++ loading: ", self.lr_schedular_conf["name"])
             return ReduceLROnPlateau(
                 optimizer=self.optimizer,
                 factor=self.lr_schedular_conf["factor"],

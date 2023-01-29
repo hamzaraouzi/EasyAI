@@ -194,7 +194,8 @@ class ClassificationTrainer(AbstractTrainer):
             if (
                 metrics[self.monitor_metric["name"]] > best_metric
                 and self.monitor_metric["mode"] == "max"
-                or metrics[self.monitor_metric["name"]] < best_metric
+            ) or (
+                metrics[self.monitor_metric["name"]] < best_metric
                 and self.monitor_metric["mode"] == "min"
             ):
 

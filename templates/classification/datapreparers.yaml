@@ -1,8 +1,8 @@
 
 Dataset:
   - task: classification
-  - img_dir:  /content/drive/MyDrive/natural-images/images
-  - csv_file: /content/drive/MyDrive/natural-images/annotations.csv
+  - img_dir:  ../natural-images/images
+  - csv_file: ../natural-images/annotations.csv
   - split:    train-test
   - ratios:
       train: 0.8
