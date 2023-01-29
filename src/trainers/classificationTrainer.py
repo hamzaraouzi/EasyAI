@@ -163,7 +163,7 @@ class ClassificationTrainer(AbstractTrainer):
         exp_tracker.init(config=None)
 
         self.optimizer = self.define_optimizer(model)
-        self.optimizer = self.prepare_lr_schedular()
+        self.lr_scheduler = self.prepare_lr_scheduler()
 
         best_metric = (
             float("-inf") if self.monitor_metric["mode"] == "max" else float("inf")
@@ -173,6 +173,7 @@ class ClassificationTrainer(AbstractTrainer):
                 train_loader=train_loader,
                 criterion=self.criterion,
                 optimizer=self.optimizer,
+                scheduler=self.lr_scheduler,
                 device=self.device,
             )
 

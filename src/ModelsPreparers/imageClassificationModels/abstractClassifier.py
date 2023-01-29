@@ -79,7 +79,8 @@ class AbstractClassifier(nn.Module):
         self,
         train_loader: DataLoader,
         criterion: nn.Module,
-        optimizer: Union[torch.optim.Optimizer, torch.optim.lr_scheduler._LRScheduler],
+        optimizer: torch.optim.Optimizer,
+        scheduler: torch.optim.lr_scheduler._LRScheduler = None,
         device: Literal["cuda", "cpu"] = "cuda",
     ) -> Tuple[float, torch.Tensor, torch.Tensor]:
         """Training epoch.
@@ -87,7 +88,8 @@ class AbstractClassifier(nn.Module):
         Args:
             train_loader (DataLoader): _description_
             criterion (nn.Module): _description_
-            optimizer (Union[Optimizer, _LRScheduler]): the optimizer or the learning rate schedular.
+            optimizer (Union[Optimizer, _LRScheduler]): the optimizer.
+            scheduler (torch.optim.lr_scheduler._LRScheduler): learning rate scheduler.
             device (Literal['cuda', 'cpu'], optional): trainig hardware. Defaults to "cuda".
 
         Returns:
@@ -108,4 +110,6 @@ class AbstractClassifier(nn.Module):
             all_pred.append(y_pred)
             all_true.append(y)
 
+        if scheduler is not None:
+            scheduler.step()
         return train_loss, torch.cat(all_true), torch.cat(all_pred)

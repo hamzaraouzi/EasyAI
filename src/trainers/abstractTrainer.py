@@ -89,14 +89,14 @@ class AbstractTrainer:
                 project=self.project, tracking_conf=self.experiment_tracker
             )
 
-    def prepare_lr_schedular(self) -> Union[Optimizer, _LRScheduler]:
+    def prepare_lr_scheduler(self) -> _LRScheduler:
         """prepare learning rate schedulars.
 
         Returns:
-            Union[Optimizer, _LRScheduler]: the optimizer or the learning rate schedular.
+            _LRScheduler: the optimizer or the learning rate scheduler.
         """
         if self.lr_schedular_conf is None:
-            return self.optimizer
+            return None
 
         if self.lr_schedular_conf["name"] == "stepLR":
             return StepLR(
