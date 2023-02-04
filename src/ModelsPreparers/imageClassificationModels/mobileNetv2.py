@@ -146,16 +146,19 @@ class InvertedResidual(nn.Module):
 class MobileNetV2(AbstractClassifier):
     """MobileNetV2 Implemetation."""
 
-    def __init__(self, in_channels=3, num_classes=10, width_multiplier=1.0):
+    def __init__(
+        self, model_name: str, in_channels=3, num_classes=10, width_multiplier=1.0
+    ):
         """Init method of MobileNetV2 class.
 
         Args:
+            model_name (str): model name.
             in_channels (int, optional): number of channels. Defaults to 3.
             num_classes (int, optional): numer of classes. Defaults to 10.
             width_multiplier (float, optional): width multiplier. Defaults to 1.0.
         """
         super(MobileNetV2, self).__init__()
-
+        self.model_name = model_name
         inverted_residual_parameters = [
             [1, 16, 1, 1],
             [6, 24, 2, 2],
@@ -226,4 +229,4 @@ class MobileNetV2(AbstractClassifier):
         Returns:
             nn.Model: _description_
         """
-        return MobileNetV2(num_classes=num_classes)
+        return MobileNetV2(model_name=model_name, num_classes=num_classes)

@@ -1,5 +1,5 @@
 """Abstract Trainer."""
-from typing import Optional
+from typing import Optional, Union
 from abc import abstractmethod
 import yaml
 import torch.nn as nn
@@ -8,6 +8,16 @@ from .trackers.abstractTracker import AbstractTracker
 import torch
 import os
 from .trackers.wandbTracker import WandBTracker
+from torch.optim.lr_scheduler import (
+    _LRScheduler,
+    StepLR,
+    MultiStepLR,
+    ExponentialLR,
+    CyclicLR,
+    ReduceLROnPlateau,
+)
+from torch.optim import Optimizer
+from collections import ChainMap
 
 
 class AbstractTrainer:
@@ -29,6 +39,15 @@ class AbstractTrainer:
         self.early_stopping = params2values["earlystoping_after"]
         self.project = params2values["project"]
         self.experiment_tracker = params2values["experiment_tracker"]
+        self.monitor_metric = params2values["monitor_metric"]
+
+        self.lr_schedular_conf = (
+            dict(ChainMap(*params2values["learning_rate_scheduler"]))
+            if "learning_rate_scheduler" in params2values.keys()
+            else None
+        )
+
+        self.optimizer = None  # it
 
     def load_check_conf_file(self, config_path: str):
         """method for loading the configuration from a yaml file.
@@ -70,6 +89,54 @@ class AbstractTrainer:
                 project=self.project, tracking_conf=self.experiment_tracker
             )
 
+    def prepare_lr_scheduler(self) -> _LRScheduler:
+        """prepare learning rate schedulars.
+
+        Returns:
+            _LRScheduler: the optimizer or the learning rate scheduler.
+        """
+        if self.lr_schedular_conf is None:
+            return None
+
+        if self.lr_schedular_conf["name"] == "stepLR":
+            return StepLR(
+                optimizer=self.optimizer,
+                step_size=self.lr_schedular_conf["step_size"],
+                verbose=True,
+            )
+
+        if self.lr_schedular_conf["name"] == "multistepLR":
+            return MultiStepLR(
+                optimizer=self.optimizer,
+                milestones=self.lr_schedular_conf["milestones"],
+                gamma=self.lr_schedular_conf["gamma"],
+                verbose=True,
+            )
+
+        if self.lr_schedular_conf["name"] == "exponentialLR":
+            return ExponentialLR(
+                optimizer=self.optimizer,
+                gamma=self.lr_schedular_conf["gamma"],
+                verbose=True,
+            )
+
+        if self.lr_schedular_conf["name"] == "cyclicalLR":
+            return CyclicLR(
+                optimizer=self.optimizer,
+                base_lr=self.lr_schedular_conf["base_lr"],
+                max_lr=self.lr_schedular_conf["max_lr"],
+                step_size_up=self.lr_schedular_conf["step_size_up"],
+                mode=self.lr_schedular_conf["mode"],
+                verbose=True,
+            )
+        if self.lr_schedular_conf["name"] == "reduceLROnPlateau":
+            return ReduceLROnPlateau(
+                optimizer=self.optimizer,
+                factor=self.lr_schedular_conf["factor"],
+                patience=self.lr_schedular_conf["patience"],
+                verbose=True,
+            )
+
     def save_best_weights(self, model: nn.Module, model_name: str) -> None:
         """save best weights.
 
@@ -78,7 +145,7 @@ class AbstractTrainer:
             model_name (str):  model name.
         """
         os.makedirs("../checkpoints", exist_ok=True)
-        torch.save(model, f"../checkpoints/{model_name}.pt")
+        torch.save(model, f"../checkpoints/{model_name}.pth")
 
     @abstractmethod
     def define_criterion(self):
@@ -142,6 +209,14 @@ class AbstractTrainer:
             y_val_pred (torch.Tensor): predictions from validation set.
             train_loss (torch.Tensor): training loss.
             val_loss (torch.Tensor): validation loss.
+        """
+        pass
+
+    def log_checkpoint(self, ckpt_path: str = "../checkpoints/*"):
+        """log best weights to experiment tracker.
+
+        Args:
+            ckpt_path (str): _description_. Defaults to "../checkpoints".
         """
         pass
 

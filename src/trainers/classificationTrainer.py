@@ -3,7 +3,12 @@ from typing import Optional
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.optim as optim
-from sklearn.metrics import accuracy_score, f1_score
+from torchmetrics.classification import (
+    BinaryAccuracy,
+    MulticlassAccuracy,
+    BinaryPrecision,
+    MulticlassPrecision,
+)
 from .abstractTrainer import AbstractTrainer
 from .trackers.abstractTracker import AbstractTracker
 import torch
@@ -91,9 +96,9 @@ class ClassificationTrainer(AbstractTrainer):
         y_train_pred: torch.Tensor,
         y_val_true: torch.Tensor,
         y_val_pred: torch.Tensor,
-        train_loss: torch.Tensor,
-        val_loss: torch.Tensor,
-    ) -> None:
+        train_loss: float,
+        val_loss: float,
+    ) -> dict:
         """logging metircs to experiment tracking tool.
 
         Args:
@@ -102,33 +107,42 @@ class ClassificationTrainer(AbstractTrainer):
             y_train_pred (torch.Tensor): predcitions on training set.
             y_val_true (torch.Tensor): groundtruth from validation set.
             y_val_pred (torch.Tensor): predictions from validation set.
-            train_loss (torch.Tensor): training loss.
-            val_loss (torch.Tensor): validation loss.
+            train_loss (float): training loss.
+            val_loss (float): validation loss.
+
+        Returns:
+            dict: dictionary of classification metrics.
         """
-        train_accuracy = accuracy_score(
-            y_train_true.detach().cpu(), y_train_pred.detach().cpu() > 0.5
-        )
-        val_accuracy = accuracy_score(
-            y_val_true.detach().cpu(), y_val_pred.detach().cpu() > 0.5
-        )
-        # calculate  F1-scores
-        train_f1 = f1_score(
-            y_train_true.detach().cpu(), y_train_pred.detach().cpu() > 0.5
-        )
-        val_f1 = f1_score(y_val_true.detach().cpu(), y_val_pred.detach().cpu() > 0.5)
+        if self.task == "binary-classification":
+            acc_fn = BinaryAccuracy()
+            precision_fn = BinaryPrecision()
+        else:
+            num_classes = y_train_pred.shape[-1]
+            acc_fn = MulticlassAccuracy(num_classes=num_classes)
+            precision_fn = MulticlassPrecision(num_classes=num_classes)
+
+        train_accuracy = acc_fn(y_train_pred, y_train_true)
+        val_accuracy = acc_fn(y_val_pred, y_val_true)
+
+        train_precision = precision_fn(y_train_pred, y_train_true)
+        val_precision = precision_fn(y_val_pred, y_val_true)
 
         # calculate and logging (recall) other metrics
         metrics = {
             "train_accuracy": train_accuracy,
             "val_accuracy": val_accuracy,
-            "train_loss": train_loss.item(),
-            "val_loss": val_loss.item(),
-            "train_f1_score": train_f1,
-            "val_f1_score": val_f1,
+            "train_loss": train_loss,
+            "val_loss": val_loss,
+            "train_precision": train_precision.item(),
+            "val_precision": val_precision.item(),
         }
         exp_tracker.log_metrics(metrics=metrics)
 
-    def train(self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader):
+        return metrics
+
+    def train(
+        self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
+    ) -> None:
         """training function.
 
         Args:
@@ -148,13 +162,18 @@ class ClassificationTrainer(AbstractTrainer):
         #    }
         exp_tracker.init(config=None)
 
-        optimizer = self.define_optimizer(model)
-        best_accuracy = 0
+        self.optimizer = self.define_optimizer(model)
+        self.lr_scheduler = self.prepare_lr_scheduler()
+
+        best_metric = (
+            float("-inf") if self.monitor_metric["mode"] == "max" else float("inf")
+        )
         for epoch in range(self.num_epochs):
             train_loss, y_train_true, y_train_pred = model.one_train_epoch(
                 train_loader=train_loader,
                 criterion=self.criterion,
-                optimizer=optimizer,
+                optimizer=self.optimizer,
+                scheduler=self.lr_scheduler,
                 device=self.device,
             )
 
@@ -162,33 +181,37 @@ class ClassificationTrainer(AbstractTrainer):
                 val_loader=val_loader, criterion=self.criterion, device=self.device
             )
 
-            train_accuracy, val_accuracy = self.log_metrics(
-                exp_tracker,
-                model,
-                y_train_true,
-                y_train_pred,
-                y_val_true,
-                y_val_pred,
-                train_loss,
-                val_loss,
+            metrics = self.log_metrics(
+                exp_tracker=exp_tracker,
+                y_train_true=y_train_true.cpu(),
+                y_train_pred=y_train_pred.cpu(),
+                y_val_true=y_val_true.cpu(),
+                y_val_pred=y_val_pred.cpu(),
+                train_loss=train_loss,
+                val_loss=val_loss,
             )
 
             no_improvement = 0
-            if val_accuracy > best_accuracy:
+            if (
+                metrics[self.monitor_metric["name"]] > best_metric
+                and self.monitor_metric["mode"] == "max"
+            ) or (
+                metrics[self.monitor_metric["name"]] < best_metric
+                and self.monitor_metric["mode"] == "min"
+            ):
 
-                model_name = model.name
-                self.save_best_weights(model, model_name=model_name)
-                best_accuracy = val_accuracy
+                self.save_best_weights(model, model_name=model.model_name)
+                best_metric = metrics[self.monitor_metric["name"]]
                 no_improvement = 0
 
             # early stopping
-            elif val_accuracy <= best_accuracy and no_improvement < self.early_stopping:
+            elif no_improvement < self.early_stopping:
                 no_improvement += 1
-            elif (
-                val_accuracy <= best_accuracy and no_improvement == self.early_stopping
-            ):
+            else:
                 # log a message that no improvement has been made for the {no_improvement} epochs
                 break
+
+        exp_tracker.log_checkpoint()
 
     def run(
         self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader

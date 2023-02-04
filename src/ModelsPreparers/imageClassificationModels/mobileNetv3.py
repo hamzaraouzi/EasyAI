@@ -245,6 +245,7 @@ class MobileNetV3(AbstractClassifier):
 
     def __init__(
         self,
+        model_name: str,
         mode: Literal["small", "large"] = "small",
         in_channels: int = 3,
         num_classes: int = 10,
@@ -253,13 +254,14 @@ class MobileNetV3(AbstractClassifier):
         """Init method for mobileNet model.
 
         Args:
+            model_name (str): model name.
             mode (Literal[&quot;small&quot;, &quot;large&quot;], optional): _description_. Defaults to "small".
             in_channels (int): _description_. Defaults to 3.
             num_classes (int): _description_. Defaults to 10.
             width_multiplier (float, optional): _description_. Defaults to 1.0.
         """
         super(MobileNetV3, self).__init__()
-
+        self.model_name = model_name
         inverted_residual_parmeters = {
             "large": [
                 # in_channles, hidden_dim, out_channels,kernel_size, stride, use_se, use_hs
@@ -367,4 +369,4 @@ class MobileNetV3(AbstractClassifier):
         Returns:
             nn.Model: _description_
         """
-        return MobileNetV3(mode="large", num_classes=num_classes)
+        return MobileNetV3(model_name=model_name, mode="large", num_classes=num_classes)

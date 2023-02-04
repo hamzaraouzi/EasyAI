@@ -52,16 +52,22 @@ class MobileNetV1(AbstractClassifier):
     """MobileNetV1 Class."""
 
     def __init__(
-        self, in_channels: int = 3, shallow: bool = False, num_classes: int = 10
+        self,
+        model_name: str,
+        in_channels: int = 3,
+        shallow: bool = False,
+        num_classes: int = 10,
     ) -> None:
         """Init method for MobileNetV1 Module.
 
         Args:
+            model_name (str): model name.w
             in_channels (int): _description_. Defaults to 3.
             shallow (bool): _description_. Defaults to False.
             num_classes (int): _description_. Defaults to 10.
         """
         super(MobileNetV1, self).__init__()
+        self.model_name = model_name
         self.initial_block = nn.Sequential(
             nn.Conv2d(in_channels, 32, kernel_size=3, padding=1, stride=2, bias=False),
             nn.BatchNorm2d(32),
@@ -112,4 +118,6 @@ class MobileNetV1(AbstractClassifier):
         Returns:
             nn.Module: _description_.
         """
-        return MobileNetV1(in_channels=3, num_classes=num_classes)
+        return MobileNetV1(
+            model_name=model_name, in_channels=3, num_classes=num_classes
+        )

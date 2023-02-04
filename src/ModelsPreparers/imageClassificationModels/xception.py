@@ -236,14 +236,16 @@ class Xception(AbstractClassifier):
 
         return nn.Sequential(*layers)
 
-    def __init__(self, in_channels: int = 3, num_classes: int = 10):
+    def __init__(self, model_name: str, in_channels: int = 3, num_classes: int = 10):
         """init method of Xception module.
 
         Args:
+            model_name (str): model name.
             in_channels (int): input channels. Defaults to 3.
             num_classes (int): num classes. Defaults to 10.
         """
         super(Xception, self).__init__()
+        self.model_name = model_name
         self.entry = EntryFlow(in_channels=in_channels)
 
         self.middle_flow = self.mFlows()
@@ -279,4 +281,6 @@ class Xception(AbstractClassifier):
         Returns:
             nn.Model: _description_
         """
-        return Xception(in_channels=in_channels, num_classes=num_classes)
+        return Xception(
+            model_name=model_name, in_channels=in_channels, num_classes=num_classes
+        )

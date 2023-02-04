@@ -1,14 +1,14 @@
 
 Dataset:
   - task: classification
-  - img_dir:  /Users/admin/Desktop/personal-repos/natural-images/images
-  - csv_file: /Users/admin/Desktop/personal-repos/natural-images/annotations.csv
+  - img_dir:  ../natural-images/images
+  - csv_file: ../natural-images/annotations.csv
   - split:    train-test
   - ratios:
       train: 0.8
       test: 0.2
 
-  - batch_size: 10
+  - batch_size: 20
 
   - train_transforms:
       - resize:
