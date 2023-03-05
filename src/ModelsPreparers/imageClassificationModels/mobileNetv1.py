@@ -66,8 +66,9 @@ class MobileNetV1(AbstractClassifier):
             shallow (bool): _description_. Defaults to False.
             num_classes (int): _description_. Defaults to 10.
         """
-        super(MobileNetV1, self).__init__()
-        self.model_name = model_name
+        super(MobileNetV1, self).__init__(
+            model_name=model_name, num_classes=num_classes
+        )
         self.initial_block = nn.Sequential(
             nn.Conv2d(in_channels, 32, kernel_size=3, padding=1, stride=2, bias=False),
             nn.BatchNorm2d(32),

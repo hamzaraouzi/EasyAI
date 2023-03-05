@@ -1,34 +1,19 @@
-"""This model is about DataPreparation."""
-
-
-import yaml
-import pandas as pd
-from .supervisedImageClassificationDataset import SupervisedImageClassicationDataset
-from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader
+"""Abstract data preparation class."""
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+import yaml
 
 
-class PrepareDataLoader:
-    """DataPreparation."""
+class AbstractDataPreparer:
+    """Abstract Data preparation class."""
 
-    def __init__(self, config_path: str):
-        """__init__ method for DataLoader class.
+    def __init__(self, config_path: str) -> None:
+        """init AbstractDataPreparer.
 
         Args:
             config_path (str): _description_
         """
-        parameters = self.load_check_conf_file(config_path)
-
-        self.task = parameters["task"]
-        self.csv_file = parameters["csv_file"]
-        self.img_dir = parameters["img_dir"]
-
-        self.split = parameters["split"]
-        self.ratios = parameters["ratios"]  # {train: ,val: ,test: } or {train: ,test: }
-        self.batch_size = parameters["batch_size"]
-
+        self.parameters = self.load_check_conf_file(config_path)
         self.train_transfom, self.test_transform = self.prepare_transformations(
             config_path
         )
@@ -102,79 +87,6 @@ class PrepareDataLoader:
         test_compose.append(ToTensorV2())
 
         return A.Compose(train_compose), A.Compose(test_compose)
-
-    def __call__(self):
-        """Data Preparation.
-
-        Returns:
-            DataLoaders
-        """
-        # TODO handel ratios and diffrents splits
-        df = pd.read_csv(self.csv_file)
-
-        train_df, test_df = train_test_split(df, test_size=self.ratios["test"])
-        if self.split == "train-test":
-
-            train_ds = SupervisedImageClassicationDataset(
-                img_dir=self.img_dir,
-                df=train_df,
-                transform=self.train_transfom,
-            )
-
-            test_ds = SupervisedImageClassicationDataset(
-                img_dir=self.img_dir,
-                df=test_df,
-                transform=self.test_transform,
-            )
-
-            train_loader = DataLoader(
-                train_ds, batch_size=self.batch_size, shuffle=True, num_workers=2
-            )
-            test_loader = DataLoader(
-                test_ds, batch_size=self.batch_size, shuffle=True, num_workers=2
-            )
-            return train_loader, test_loader, None
-
-        if self.split == "train-val-test":
-
-            val_df, test_df = train_test_split(
-                test_df,
-                test_size=self.ratios["test"]
-                / (self.ratios["test"] + self.ratios["val"]),
-            )
-
-            train_ds = SupervisedImageClassicationDataset(
-                img_dir=self.img_dir,
-                df=train_df,
-                target_column=self.target_column,
-                transform=self.train_transfom,
-            )
-
-            test_ds = SupervisedImageClassicationDataset(
-                img_dir=self.img_dir,
-                df=test_df,
-                target_column=self.target_column,
-                transform=self.test_transfom,
-            )
-
-            val_ds = SupervisedImageClassicationDataset(
-                img_dir=self.img_dir,
-                df=val_df,
-                target_column=self.target_column,
-                transform=self.test_transfom,
-            )
-
-            train_loader = DataLoader(
-                train_ds, batch_size=self.batch_size, shuffle=True, num_workers=2
-            )
-            test_loader = DataLoader(
-                test_ds, batch_size=self.batch_size, shuffle=True, num_workers=2
-            )
-            val_loader = DataLoader(
-                val_ds, batch_size=self.batch_size, shuffle=True, num_workers=2
-            )
-
-            return train_loader, val_loader, test_loader
 
     def load_check_conf_file(self, config_path: str):
         """Loading and checking config file for DataLoader.

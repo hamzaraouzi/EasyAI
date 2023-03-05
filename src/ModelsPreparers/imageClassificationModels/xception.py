@@ -244,8 +244,8 @@ class Xception(AbstractClassifier):
             in_channels (int): input channels. Defaults to 3.
             num_classes (int): num classes. Defaults to 10.
         """
-        super(Xception, self).__init__()
-        self.model_name = model_name
+        super(Xception, self).__init__(model_name=model_name, num_classes=num_classes)
+
         self.entry = EntryFlow(in_channels=in_channels)
 
         self.middle_flow = self.mFlows()

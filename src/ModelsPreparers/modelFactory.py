@@ -9,8 +9,10 @@ from .imageClassificationModels.mobileNetv3 import MobileNetV3
 from .imageClassificationModels.resnet import Resnet101, Resnet34
 from .imageClassificationModels.xception import Xception
 
+from .semanticSegmentationModels.unet import UNET
 
-class ClassificationModel:
+
+class ModelFactory:
     """Classification Model is a class that will manage loading and preparation of desired modelll."""
 
     def __init__(self, config_path: str) -> None:
@@ -19,7 +21,7 @@ class ClassificationModel:
         Args:
             config_path (str): the path to the yaml config path
         """
-        super(ClassificationModel, self).__init__()
+        super(ModelFactory, self).__init__()
         params2values = self.load_check_conf_file(config_path)
 
         self.model_name = params2values["name"]
@@ -46,11 +48,11 @@ class ClassificationModel:
 
         return params2values
 
-    def prepareModels(self) -> AbstractClassifier:
-        """prepare classification model.
+    def prepareModels(self) -> nn.Module:
+        """prepare  model.
 
         Returns:
-            AbstractClassifier: classification model.
+            nn.module: pytorch  model.
         """
         if self.model_name == "mobileNetV1":
             return MobileNetV1.prepareModel(
@@ -78,9 +80,16 @@ class ClassificationModel:
             )
 
         if self.model_name == "xception":
-            return Xception(model_name=self.model_name, num_classes=self.num_classes)
+            return Xception.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
 
-    def __call__(self) -> AbstractClassifier:
+        if self.model_name == "u-net":
+            return UNET.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+    def __call__(self) -> nn.Module:
         """prepare classification model.
 
         Returns:
