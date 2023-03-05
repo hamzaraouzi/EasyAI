@@ -1,0 +1,31 @@
+
+Dataset:
+  - task: binary-semantic-segmentation
+  - dataset_path: ../white-bood-cell
+  - split:    train-test
+
+  - batch_size: 20
+
+  - train_transforms:
+      - resize:
+        width: 256
+        height: 256
+        p: 1
+
+      - horizontalFlip:
+        p: 0.5
+
+      - verticalFlip:
+        p: 0.5
+
+      - rotate:
+        minAngle: 25
+        maxAngle: 90
+        p: 0.5
+
+
+  - test_transforms:
+      - resize:
+        width: 256
+        height: 256
+        p: 1

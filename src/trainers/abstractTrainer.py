@@ -16,7 +16,7 @@ from torch.optim.lr_scheduler import (
     CyclicLR,
     ReduceLROnPlateau,
 )
-from torch.optim import Optimizer
+from torch import optim
 from collections import ChainMap
 
 
@@ -102,6 +102,7 @@ class AbstractTrainer:
             return StepLR(
                 optimizer=self.optimizer,
                 step_size=self.lr_schedular_conf["step_size"],
+                gamma=self.lr_schedular_conf["gamma"],
                 verbose=True,
             )
 
@@ -148,69 +149,74 @@ class AbstractTrainer:
         torch.save(model, f"../checkpoints/{model_name}.pth")
 
     @abstractmethod
-    def define_criterion(self):
-        """defining criterion."""
-        pass
+    def define_criterion(self) -> nn.Module:
+        """defining criterion.
 
-    @abstractmethod
-    def define_optimizer(self, model: nn.Module):
-        """define optimizer.
-
-        Args:
-            model (nn.Module): pytorch model.
+        Returns:
+            nn.Module: pytorch model.
         """
         pass
 
-    @abstractmethod
-    def train(self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader):
-        """training function.
+    def define_optimizer(self, model: nn.Module) -> optim.Optimizer:
+        """preparing optimizer.
 
         Args:
             model (nn.Module): pytorch model.
-            train_loader (DataLoader): training data loader.
-            val_loader (DataLoader): validation data loader.
+
+        Returns:
+            optim.Optimizer: optimizer.
         """
-        pass
+        if self.optimizer_parameters["name"] == "Adam":
+
+            return optim.Adam(
+                model.parameters(),
+                lr=self.optimizer_parameters["lr"],
+                betas=tuple(self.optimizer_parameters["betas"]),
+                weight_decay=self.optimizer_parameters["weight_decay"],
+            )
+
+        if self.optimizer_parameters["name"] == "SGD":
+            return optim.SGD(
+                model.parameters(),
+                lr=self.optimizer_parameters["lr"],
+                momentum=self.optimizer_parameters["momentum"],
+                dampening=self.optimizer_parameters["dampening"],
+                nestrove=self.optimizer_parameters["nestrove"],
+            )
+
+        if self.optimizer_parameters["name"] == "RMSprop":
+            return optim.RMSprop(
+                model.parameters(),
+                lr=self.optimizer_parameters["lr"],
+                momentum=self.optimizer_parameters["momentum"],
+                alpha=self.optimizer_parameters["alpha"],
+                weight_decay=self.optimizer_parameters["weight_decay"],
+            )
+
+        if self.optimizer_parameters["name"] == "Adagrad":
+            return optim.Adagrad(
+                model.parameters(),
+                lr=self.optimizer_parameters["lr"],
+                lr_decay=self.optimizer_parameters["lr_decay"],
+                weight_decay=self.optimizer_parameters["weight_decay"],
+            )
+
+        if self.optimizer_parameters["name"] == "Adadelta":
+            return optim.Adadelta(
+                model.parameters(),
+                lr=self.optimizer_parameters["lr"],
+                weight_decay=self.optimizer_parameters["weight_decay"],
+            )
 
     @abstractmethod
-    def run(
-        self,
-        model: nn.Module,
-        train_loader: DataLoader,
-        val_loader: Optional[DataLoader],
-    ):
-        """run training step.
-
-        Args:
-            model (nn.Module): pytorch model.
-            train_loader (DataLoader): training data loader.
-            val_loader (DataLoader): validation data loader.
-        """
-        pass
-
-    @abstractmethod
-    def log_metrics(
-        self,
-        exp_tracker: AbstractTracker,
-        y_train_true: torch.Tensor,
-        y_train_pred: torch.Tensor,
-        y_val_true: torch.Tensor,
-        y_val_pred: torch.Tensor,
-        train_loss: torch.Tensor,
-        val_loss: torch.Tensor,
-    ) -> None:
+    def log_metrics(self, exp_tracker: AbstractTracker, metrics: dict) -> None:
         """logging metircs to experiment tracking tool.
 
         Args:
-            exp_tracker (AbstractTracker): experiment tracking intance.
-            y_train_true (torch.Tensor): groundtruth from training set.
-            y_train_pred (torch.Tensor): predcitions on training set.
-            y_val_true (torch.Tensor): groundtruth from validation set.
-            y_val_pred (torch.Tensor): predictions from validation set.
-            train_loss (torch.Tensor): training loss.
-            val_loss (torch.Tensor): validation loss.
+            exp_tracker (AbstractTracker): experiment tracking instance.
+            metrics (dict): training and validation metrics.
         """
-        pass
+        exp_tracker.log_metrics(metrics=metrics)
 
     def log_checkpoint(self, ckpt_path: str = "../checkpoints/*"):
         """log best weights to experiment tracker.
@@ -219,6 +225,87 @@ class AbstractTrainer:
             ckpt_path (str): _description_. Defaults to "../checkpoints".
         """
         pass
+
+    def train(
+        self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
+    ) -> None:
+        """training function.
+
+        Args:
+            model (nn.Module): pytorch model.
+            train_loader (DataLoader): training data loader.
+            val_loader (DataLoader): validation data loader.
+        """
+        model.to(device=self.device)
+        self.exp_tracker = self.prepare_exp_tracker()
+
+        # TODO in config we need to log some metadata for example
+        # config = {
+        #    "dataset": "CIFAR10",
+        #    "model": "CNN",
+        #    "learning_rate": 0.01,
+        #    "batch_size": 128,
+        #    }
+        self.exp_tracker.init(config=None)
+
+        self.criterion = self.define_criterion()
+
+        self.optimizer = self.define_optimizer(model)
+        self.lr_scheduler = self.prepare_lr_scheduler()
+
+        best_metric = (
+            float("-inf") if self.monitor_metric["mode"] == "max" else float("inf")
+        )
+        for epoch in range(self.num_epochs):
+            metrics = model.one_train_epoch(
+                train_loader=train_loader,
+                criterion=self.criterion,
+                optimizer=self.optimizer,
+                scheduler=self.lr_scheduler,
+                device=self.device,
+            )
+
+            val_metrics = model.one_val_epoch(
+                val_loader=val_loader, criterion=self.criterion, device=self.device
+            )
+
+            metrics.update(val_metrics)
+
+            self.log_metrics(exp_tracker=self.exp_tracker, metrics=metrics)
+
+            no_improvement = 0
+            if (
+                metrics[self.monitor_metric["name"]] > best_metric
+                and self.monitor_metric["mode"] == "max"
+            ) or (
+                metrics[self.monitor_metric["name"]] < best_metric
+                and self.monitor_metric["mode"] == "min"
+            ):
+
+                self.save_best_weights(model, model_name=model.model_name)
+                best_metric = metrics[self.monitor_metric["name"]]
+                no_improvement = 0
+
+            # early stopping
+            elif no_improvement < self.early_stopping:
+                no_improvement += 1
+            else:
+                # log a message that no improvement has been made for the {no_improvement} epochs
+                break
+
+        self.exp_tracker.log_checkpoint()
+
+    def run(
+        self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
+    ) -> None:
+        """run training step.
+
+        Args:
+            model (nn.Module): pytorch model.
+            train_loader (DataLoader): training data loader.
+            val_loader (DataLoader): validation data loader.
+        """
+        self.train(model, train_loader, val_loader)
 
     def __call__(
         self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader

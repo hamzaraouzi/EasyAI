@@ -1,9 +1,10 @@
 
 training:
-  - task: classification
-  - project: natural-image-classification
+  - task: binary-semantic-segmentation
+  - project: WBC-segmentation
   - num_epochs: 20
   - device: cpu
+  - criterion: BceLoss
   - optimizer:
         - name: Adam
         - lr: 0.0001
@@ -17,7 +18,7 @@ training:
 
   - earlystoping_after: 10
   - monitor_metric:
-      name: val_accuracy
+      name: val_dice
       mode: max
   - experiment_tracker:
       name: wandb

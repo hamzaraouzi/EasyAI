@@ -1,36 +1,26 @@
-"""Abstract Image Classifier classifier class.
-
-Its class from which all Image classification models , will Inherent some methods.
-"""
-
+"""abstract semantic segmentation model."""
 from abc import abstractmethod
 import torch
 import torch.nn as nn
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from typing import Literal, Tuple
-from torchmetrics.classification import (
-    BinaryAccuracy,
-    MulticlassAccuracy,
-    BinaryPrecision,
-    MulticlassPrecision,
-)
+from torchmetrics.functional import dice, jaccard_index
 
 
-class AbstractClassifier(nn.Module):
-    """An Abstract Image classication class."""
+class AbstrctSegmenter(nn.Module):
+    """An Abstract semantic segmentation model class."""
 
-    def __init__(self, model_name: str, num_classes: int) -> None:
-        """init method for AbstractClassifier.
+    def __init__(self, num_classes: int, model_name: str):
+        """init method for abstract segmenter.
 
         Args:
-            model_name (str): _description_
-            num_classes (int): _description_
+            num_classes (int): number of classes.
+            model_name (str): model_name.
         """
-        super(AbstractClassifier, self).__init__()
-        self.model_name = model_name
+        super(AbstrctSegmenter, self).__init__()
         self.num_classes = num_classes
-        self.task = "classification" if num_classes > 1 else "binary-classification"
+        self.model_name = model_name
 
     @abstractmethod
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -51,7 +41,7 @@ class AbstractClassifier(nn.Module):
     def prepareModel(
         model_name: str, in_channels: int = 3, num_classes: int = 10
     ) -> nn.Module:
-        """Desired model paration.
+        """Desired model preparation.
 
         Args:
             in_channels (int): input channels.
@@ -65,27 +55,41 @@ class AbstractClassifier(nn.Module):
     def calculate_metrics(
         self, predictions: torch.Tensor, targets: torch.Tensor
     ) -> Tuple[float, float]:
-        """logging metircs to experiment tracking tool.
+        """calculate semantic segmentation metrics.
 
         Args:
-            predictions (torch.Tensor): models predictions.
-            targets (torch.Tensor): targets predictions.
+            predictions (torch.Tensor): model predictions.
+            targets (torch.Tensor): groundtruth segmentations.
 
         Returns:
-            Tuple[float, float]: _description_
+            Tuple[float, float]: dice and iou scores
         """
-        if self.task == "binary-classification":
-            acc_fn = BinaryAccuracy()
-            precision_fn = BinaryPrecision()
-        else:
-            num_classes = predictions.shape[-1]
-            acc_fn = MulticlassAccuracy(num_classes=num_classes)
-            precision_fn = MulticlassPrecision(num_classes=num_classes)
+        # TODO: fix mertics calculation for segmentation.
+        task = (
+            "multiclass-semantic-segmentation"
+            if self.num_classes > 1
+            else "binary-sematic-segmentation"
+        )
+        predictions = (
+            torch.argmax(torch.softmax(predictions, dim=1), dim=1)
+            if self.num_classes > 1
+            else torch.sigmoid(predictions)
+        )
+        dice_score = dice(
+            preds=predictions,
+            target=targets.int(),
+            # num_classes=self.num_classes,
+        )
 
-        accuracy = acc_fn(predictions, targets)
-        precision = precision_fn(predictions, targets)
+        task = task.split("-")[0]  # binary or multiclass
+        iou_score = jaccard_index(
+            preds=predictions,
+            target=targets.int(),
+            task=task,
+            num_classes=self.num_classes,
+        )
 
-        return accuracy.item(), precision.item()
+        return dice_score.item(), iou_score.item()
 
     def one_val_epoch(
         self,
@@ -101,10 +105,10 @@ class AbstractClassifier(nn.Module):
             device (Literal['cuda', 'cpu'], optional): training hardware. Defaults to 'cuda'.
 
         Returns:
-            dict: validation loss, and validation metrics.
+            dict: mean loss, validation metrics.
         """
         self.eval()
-        val_loss, mean_acc, mean_prec = 0, 0, 0
+        val_loss, mean_val_dice, mean_val_iou = 0, 0, 0
 
         with torch.no_grad():
             for _, (X, y) in enumerate(tqdm(val_loader, leave=True)):
@@ -113,14 +117,16 @@ class AbstractClassifier(nn.Module):
                 loss = criterion(y_pred, y)
                 val_loss += loss.item() / len(val_loader)
 
-                acc, prec = self.calculate_metrics(predictions=y_pred, targets=y)
-                mean_acc += acc / len(val_loader)
-                mean_prec += prec / len(val_loader)
+                dice_score, iou_score = self.calculate_metrics(
+                    predictions=y_pred, targets=y
+                )
+            mean_val_dice += dice_score / len(val_loader)
+            mean_val_iou += iou_score / len(val_loader)
 
         return {
             "val_loss": val_loss,
-            "val_accuracy": mean_acc,
-            "val_precision": mean_prec,
+            "val_dice_score": mean_val_dice,
+            "val_iou_score": mean_val_iou,
         }
 
     def one_train_epoch(
@@ -141,10 +147,10 @@ class AbstractClassifier(nn.Module):
             device (Literal['cuda', 'cpu'], optional): trainig hardware. Defaults to "cuda".
 
         Returns:
-            dict: mean loss, all true labels, all model's predictions.
+            dict: loss and training metrics.
         """
         self.train()
-        train_loss, mean_acc, mean_prec = 0, 0, 0
+        train_loss, mean_train_dice, mean_train_iou = 0, 0, 0
 
         for _, (X, y) in enumerate(tqdm(train_loader, leave=True)):
             X, y = X.to(device), y.to(device)
@@ -155,15 +161,16 @@ class AbstractClassifier(nn.Module):
             optimizer.step()
             train_loss += loss.item() / len(train_loader)
 
-            acc, prec = self.calculate_metrics(predictions=y_pred, targets=y)
-            mean_acc += acc / len(train_loader)
-            mean_prec += prec / len(train_loader)
+            dice_score, iou_score = self.calculate_metrics(
+                predictions=y_pred, targets=y
+            )
+            mean_train_dice += dice_score / len(train_loader)
+            mean_train_iou += iou_score / len(train_loader)
 
         if scheduler is not None:
             scheduler.step()
-
         return {
             "train_loss": train_loss,
-            "train_accuracy": mean_acc,
-            "train_precision": mean_prec,
+            "train_dice_score": mean_train_dice,
+            "train_iou_score": mean_train_iou,
         }

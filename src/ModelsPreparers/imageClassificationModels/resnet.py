@@ -93,15 +93,9 @@ class Resnet101(AbstractClassifier):
             in_channels (int): input channels . Defaults to 3.
             num_classes (int): number of classes. Defaults to 10.
         """
-        super().__init__()
-        self.model_name = model_name
-        self.in_channels = in_channels
-        self.num_classes = num_classes
-
+        super(Resnet101, self).__init__(model_name=model_name, num_classes=num_classes)
         self.initial_block = nn.Sequential(
-            nn.Conv2d(
-                self.in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
-            ),
+            nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
@@ -308,15 +302,10 @@ class Resnet34(AbstractClassifier):
             in_channels (int): input channels . Defaults to 3.
             num_classes (int): number of classes. Defaults to 10.
         """
-        super(Resnet34, self).__init__()
-        self.model_name = model_name
-        self.in_channels = in_channels
-        self.num_classes = num_classes
+        super(Resnet34, self).__init__(model_name=model_name, num_classes=num_classes)
 
         self.initial_block = nn.Sequential(
-            nn.Conv2d(
-                self.in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
-            ),
+            nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),

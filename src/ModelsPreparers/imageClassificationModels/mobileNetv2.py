@@ -157,8 +157,9 @@ class MobileNetV2(AbstractClassifier):
             num_classes (int, optional): numer of classes. Defaults to 10.
             width_multiplier (float, optional): width multiplier. Defaults to 1.0.
         """
-        super(MobileNetV2, self).__init__()
-        self.model_name = model_name
+        super(MobileNetV2, self).__init__(
+            model_name=model_name, num_classes=num_classes
+        )
         inverted_residual_parameters = [
             [1, 16, 1, 1],
             [6, 24, 2, 2],

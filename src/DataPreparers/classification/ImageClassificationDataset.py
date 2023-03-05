@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import numpy as np
 
 
-class SupervisedImageClassicationDataset(Dataset):
+class ImageClassicationDataset(Dataset):
     """SupervisedImageClassificationData pytorch Dataset class."""
 
     def __init__(self, img_dir: str, df: pd.DataFrame, transform) -> None:
