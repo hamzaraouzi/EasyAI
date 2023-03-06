@@ -17,7 +17,9 @@ class UNET(AbstrctSegmenter):
             in_channels (int): input channels. Defaults to 3.
             num_classes (int): number of classes. Defaults to 1.
         """
-        super(UNET, self).__init__(model_name=model_name, num_classes=num_classes)
+        super(UNET, self).__init__(
+            model_name=model_name, num_classes=num_classes, in_channels=in_channels
+        )
         self.layers = [in_channels, 64, 128, 256, 512, 1024]
 
         self.double_conv_downs = nn.ModuleList(
