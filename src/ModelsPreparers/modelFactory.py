@@ -2,7 +2,6 @@
 import torch.nn as nn
 import yaml
 
-from .imageClassificationModels.abstractClassifier import AbstractClassifier
 from .imageClassificationModels.mobileNetv1 import MobileNetV1
 from .imageClassificationModels.mobileNetv2 import MobileNetV2
 from .imageClassificationModels.mobileNetv3 import MobileNetV3
@@ -10,6 +9,9 @@ from .imageClassificationModels.resnet import Resnet101, Resnet34
 from .imageClassificationModels.xception import Xception
 
 from .semanticSegmentationModels.unet import UNET
+from .semanticSegmentationModels.attention_unet import Attention_unet
+from .semanticSegmentationModels.r2_unet import R2U_net
+from .semanticSegmentationModels.r2_attention_unet import R2AttU_net
 
 
 class ModelFactory:
@@ -86,6 +88,21 @@ class ModelFactory:
 
         if self.model_name == "u-net":
             return UNET.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name == "attention-unet":
+            return Attention_unet.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name == "r2-unet":
+            return R2U_net.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name == "r2-attention-unet":
+            return R2AttU_net.prepareModel(
                 model_name=self.model_name, num_classes=self.num_classes
             )
 

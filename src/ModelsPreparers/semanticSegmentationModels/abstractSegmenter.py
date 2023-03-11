@@ -11,16 +11,18 @@ from torchmetrics.functional import dice, jaccard_index
 class AbstrctSegmenter(nn.Module):
     """An Abstract semantic segmentation model class."""
 
-    def __init__(self, num_classes: int, model_name: str):
+    def __init__(self, in_channels: int, num_classes: int, model_name: str):
         """init method for abstract segmenter.
 
         Args:
+            in_channels (int): input channels.
             num_classes (int): number of classes.
             model_name (str): model_name.
         """
         super(AbstrctSegmenter, self).__init__()
         self.num_classes = num_classes
         self.model_name = model_name
+        self.in_channels = in_channels
 
     @abstractmethod
     def forward(self, x: torch.Tensor) -> torch.Tensor:
