@@ -4,7 +4,7 @@ from torch import nn
 from .abstractSegmenter import AbstrctSegmenter
 
 from .r2_unet import up_conv, Recurrent_block, RRCNN_block
-from attention_unet import Attention_block
+from .attention_unet import Attention_block
 
 
 class R2AttU_net(AbstrctSegmenter):
