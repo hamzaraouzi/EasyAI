@@ -6,6 +6,8 @@ from .abstractSegmenter import AbstrctSegmenter
 from .r2_unet import up_conv, Recurrent_block, RRCNN_block
 from .attention_unet import Attention_block
 
+from abc import abstractmethod
+
 
 class R2AttU_net(AbstrctSegmenter):
     """R2AttU_net class."""
@@ -92,3 +94,20 @@ class R2AttU_net(AbstrctSegmenter):
         d2 = self.up_rrcnn2(d2)
 
         return self.conv_1x1(d2)
+
+    @abstractmethod
+    def prepareModel(
+        model_name: str, in_channels: int = 3, num_classes: int = 10
+    ) -> nn.Module:
+        """Desired model preparation.
+
+        Args:
+            in_channels (int): input channels.
+            num_classes (int): number of classes.
+
+        Returns:
+            nn.Module: _description_
+        """
+        return R2AttU_net(
+            model_name=model_name, in_channels=in_channels, num_classes=num_classes
+        )

@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch
 from .abstractSegmenter import AbstrctSegmenter
 
+from abc import abstractmethod
+
 
 class conv_block(nn.Module):
     """Convolution block class."""
@@ -210,3 +212,20 @@ class Attention_unet(AbstrctSegmenter):
         d1 = self.Conv_1x1(d2)
 
         return d1
+
+    @abstractmethod
+    def prepareModel(
+        model_name: str, in_channels: int = 3, num_classes: int = 10
+    ) -> nn.Module:
+        """Desired model preparation.
+
+        Args:
+            in_channels (int): input channels.
+            num_classes (int): number of classes.
+
+        Returns:
+            nn.Module: _description_
+        """
+        return Attention_unet(
+            model_name=model_name, in_channels=in_channels, num_classes=num_classes
+        )
