@@ -2,7 +2,6 @@
 import torch
 import torch.nn as nn
 from .abstractSegmenter import AbstrctSegmenter
-from abc import abstractmethod
 
 
 class Recurrent_block(nn.Module):
@@ -188,13 +187,14 @@ class R2U_net(AbstrctSegmenter):
         d1 = self.conv_1x1(d2)
         return d1
 
-    @abstractmethod
+    @staticmethod
     def prepareModel(
         model_name: str, in_channels: int = 3, num_classes: int = 10
     ) -> nn.Module:
         """Desired model preparation.
 
         Args:
+            model_name (str): model_name.
             in_channels (int): input channels.
             num_classes (int): number of classes.
 

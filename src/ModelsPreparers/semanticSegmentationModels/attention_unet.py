@@ -213,13 +213,14 @@ class Attention_unet(AbstrctSegmenter):
 
         return d1
 
-    @abstractmethod
+    @staticmethod
     def prepareModel(
         model_name: str, in_channels: int = 3, num_classes: int = 10
     ) -> nn.Module:
         """Desired model preparation.
 
         Args:
+            model_name (str): model name.
             in_channels (int): input channels.
             num_classes (int): number of classes.
 

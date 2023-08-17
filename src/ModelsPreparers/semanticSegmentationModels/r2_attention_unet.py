@@ -95,13 +95,14 @@ class R2AttU_net(AbstrctSegmenter):
 
         return self.conv_1x1(d2)
 
-    @abstractmethod
+    @staticmethod
     def prepareModel(
         model_name: str, in_channels: int = 3, num_classes: int = 10
     ) -> nn.Module:
         """Desired model preparation.
 
         Args:
+            model_name (str): model_name.
             in_channels (int): input channels.
             num_classes (int): number of classes.
 
