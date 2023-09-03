@@ -97,7 +97,7 @@ class R2AttU_net(AbstrctSegmenter):
 
         if self.num_classes == 1:
             d2 = d2.squeeze(1)
-        return self.conv_1x1(d2)
+        return
 
     @staticmethod
     def prepareModel(
