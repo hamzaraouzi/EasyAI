@@ -213,6 +213,8 @@ class Attention_unet(AbstrctSegmenter):
 
         d1 = self.Conv_1x1(d2)
 
+        if self.num_classes == 1:
+            d1 = d1.squeeze(1)
         return d1
 
     @staticmethod

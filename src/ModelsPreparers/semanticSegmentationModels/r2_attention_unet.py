@@ -95,6 +95,8 @@ class R2AttU_net(AbstrctSegmenter):
         d2 = torch.cat((x1, d2), dim=1)
         d2 = self.up_rrcnn2(d2)
 
+        if self.num_classes == 1:
+            d2 = d2.squeeze(1)
         return self.conv_1x1(d2)
 
     @staticmethod

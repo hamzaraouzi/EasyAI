@@ -187,6 +187,9 @@ class R2U_net(AbstrctSegmenter):
         d2 = self.up_rrcnn2(d2)
 
         d1 = self.conv_1x1(d2)
+
+        if self.num_classes == 1:
+            d1 = d1.squeeze(1)
         return d1
 
     @staticmethod
