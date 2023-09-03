@@ -120,7 +120,9 @@ class R2U_net(AbstrctSegmenter):
             num_classes (int): _description_
             model_name (str): _description_
         """
-        super().__init__(in_channels, num_classes, model_name)
+        super().__init__(
+            in_channels=in_channels, num_classes=num_classes, model_name=model_name
+        )
         self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.up_sample = nn.Upsample(scale_factor=2)
 
@@ -136,13 +138,13 @@ class R2U_net(AbstrctSegmenter):
         self.up4 = up_conv(in_channels=512, out_channels=256)
         self.up_rrcnn4 = RRCNN_block(in_channels=512, out_channels=256)
 
-        self.up3 = up_conv(in_channels=512, out_channels=256)
+        self.up3 = up_conv(in_channels=256, out_channels=128)
         self.up_rrcnn3 = RRCNN_block(in_channels=256, out_channels=128)
 
         self.up2 = up_conv(in_channels=128, out_channels=64)
         self.up_rrcnn2 = RRCNN_block(in_channels=128, out_channels=64)
 
-        self.conv_1x1 = nn.Conv2d(64, num_classes, stride=1, padding=0)
+        self.conv_1x1 = nn.Conv2d(64, num_classes, kernel_size=1, stride=1, padding=0)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """_summary_.
