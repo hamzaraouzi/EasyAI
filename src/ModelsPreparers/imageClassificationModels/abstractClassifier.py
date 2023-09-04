@@ -63,24 +63,30 @@ class AbstractClassifier(nn.Module):
         pass
 
     def calculate_metrics(
-        self, predictions: torch.Tensor, targets: torch.Tensor
+        self,
+        predictions: torch.Tensor,
+        targets: torch.Tensor,
+        device: Literal["cuda", "cpu"] = "cuda",
     ) -> Tuple[float, float]:
         """logging metircs to experiment tracking tool.
 
         Args:
             predictions (torch.Tensor): models predictions.
             targets (torch.Tensor): targets predictions.
+            device (Literal['cuda', 'cpu'], optional): training hardware. Defaults to 'cuda'.
 
         Returns:
             Tuple[float, float]: _description_
         """
         if self.task == "binary-classification":
-            acc_fn = BinaryAccuracy()
-            precision_fn = BinaryPrecision()
+            acc_fn = BinaryAccuracy().to(device=device)
+            precision_fn = BinaryPrecision().to(device=device)
         else:
             num_classes = predictions.shape[-1]
-            acc_fn = MulticlassAccuracy(num_classes=num_classes)
-            precision_fn = MulticlassPrecision(num_classes=num_classes)
+            acc_fn = MulticlassAccuracy(num_classes=num_classes).to(device=device)
+            precision_fn = MulticlassPrecision(num_classes=num_classes).to(
+                device=device
+            )
 
         accuracy = acc_fn(predictions, targets)
         precision = precision_fn(predictions, targets)
@@ -113,7 +119,9 @@ class AbstractClassifier(nn.Module):
                 loss = criterion(y_pred, y)
                 val_loss += loss.item() / len(val_loader)
 
-                acc, prec = self.calculate_metrics(predictions=y_pred, targets=y)
+                acc, prec = self.calculate_metrics(
+                    predictions=y_pred, targets=y, device=device
+                )
                 mean_acc += acc / len(val_loader)
                 mean_prec += prec / len(val_loader)
 
@@ -155,7 +163,9 @@ class AbstractClassifier(nn.Module):
             optimizer.step()
             train_loss += loss.item() / len(train_loader)
 
-            acc, prec = self.calculate_metrics(predictions=y_pred, targets=y)
+            acc, prec = self.calculate_metrics(
+                predictions=y_pred, targets=y, device=device
+            )
             mean_acc += acc / len(train_loader)
             mean_prec += prec / len(train_loader)
 

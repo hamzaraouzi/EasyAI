@@ -10,7 +10,7 @@ import click
 @click.option("--model_conf", type=str, help="config file for model preparation")
 @click.option("--trainer_conf", type=str, help="config file for trainer preparation")
 def main(data_conf: str, model_conf: str, trainer_conf: str):
-    """runing pipeline.
+    """Runing pipeline.
 
     Args:
         data_conf (str): config file for data preparation.

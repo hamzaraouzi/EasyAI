@@ -3,7 +3,7 @@ training:
   - task: binary-semantic-segmentation
   - project: WBC-segmentation
   - num_epochs: 20
-  - device: cpu
+  - device: cuda
   - criterion: BceLoss
   - optimizer:
         - name: Adam
