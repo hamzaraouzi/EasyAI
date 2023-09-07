@@ -226,6 +226,19 @@ class AbstractTrainer:
         """
         pass
 
+    @abstractmethod
+    def log_example_preds(self, task: str, train_dict: dict, valid_dict: dict):
+        """_summary_.
+
+        Args:
+            task (str): _description_
+            train_dict (dict): _description_
+            valid_dict (dict): _description_
+        """
+        self.exp_tracker.log_pred_examples(
+            task=task, train_dict=train_dict, valid_dict=valid_dict
+        )
+
     def train(
         self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
     ) -> None:
@@ -257,7 +270,7 @@ class AbstractTrainer:
             float("-inf") if self.monitor_metric["mode"] == "max" else float("inf")
         )
         for epoch in range(self.num_epochs):
-            metrics = model.one_train_epoch(
+            metrics, train_preds = model.one_train_epoch(
                 train_loader=train_loader,
                 criterion=self.criterion,
                 optimizer=self.optimizer,
@@ -265,13 +278,16 @@ class AbstractTrainer:
                 device=self.device,
             )
 
-            val_metrics = model.one_val_epoch(
+            val_metrics, valid_preds = model.one_val_epoch(
                 val_loader=val_loader, criterion=self.criterion, device=self.device
             )
 
             metrics.update(val_metrics)
 
             self.log_metrics(exp_tracker=self.exp_tracker, metrics=metrics)
+            self.log_example_preds(
+                task=self.task, train_dict=train_preds, valid_dict=valid_preds
+            )
 
             no_improvement = 0
             if (
