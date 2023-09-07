@@ -71,9 +71,13 @@ class AbstrctSegmenter(nn.Module):
             dict: _description_
         """
         images = torchvision.utils.make_grid(X[:n_samples, ...], normalize=True)
+
+        images = images.reshape(1, 2, 0) if self.in_channels > 1 else images
+
         true_masks = torchvision.utils.make_grid(
             y[:n_samples, ...].float(), normalize=True
         )
+
         if self.num_classes == 1:
             pred_masks = torch.sigmoid(y_pred) > 0.5
         else:
