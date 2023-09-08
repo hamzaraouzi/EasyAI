@@ -6,6 +6,7 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader
 from typing import Literal, Tuple
 from torchmetrics.functional import dice, jaccard_index
+import torchvision
 
 
 class AbstrctSegmenter(nn.Module):
@@ -55,6 +56,49 @@ class AbstrctSegmenter(nn.Module):
         """
         pass
 
+    def prepare_pred_examples(
+        self, X: torch.Tensor, y: torch.Tensor, y_pred: torch.Tensor, n_samples: int
+    ) -> dict:
+        """_summary_.
+
+        Args:
+            X (torch.Tensor): _description_.
+            y (torch.Tensor): _description_.
+            y_pred (torch.Tensor): _description_.
+            n_samples (int): _description_.
+
+        Returns:
+            dict: _description_
+        """
+        images = torchvision.utils.make_grid(X[:n_samples, ...], normalize=True)
+
+        images = images.permute((1, 2, 0)) if self.in_channels > 1 else images
+        if self.num_classes == 1:
+            pred_masks = torch.sigmoid(y_pred) > 0.5
+
+            pred_masks = pred_masks.unsqueeze(1)
+            true_masks = y.unsqueeze(1)
+
+            true_masks = torchvision.utils.make_grid(
+                true_masks[:n_samples, ...].float(), normalize=True
+            )
+            pred_masks = torchvision.utils.make_grid(
+                pred_masks[:n_samples, ...].float(), normalize=True
+            )
+
+            pred_masks = pred_masks[0, ...]
+            true_masks = true_masks[0, ...]
+
+        else:
+            pred_masks = torch.softmax(y_pred, dim=1)
+            # TODO: I may need to add the argmax for multi class
+
+        return {
+            "images": images.detach().cpu().numpy(),
+            "true_masks": true_masks.detach().cpu().numpy(),
+            "pred_masks": pred_masks.detach().cpu().numpy(),
+        }
+
     def calculate_metrics(
         self, predictions: torch.Tensor, targets: torch.Tensor
     ) -> Tuple[float, float]:
@@ -99,7 +143,7 @@ class AbstrctSegmenter(nn.Module):
         val_loader: DataLoader,
         criterion: nn.Module,
         device: Literal["cuda", "cpu"] = "cuda",
-    ) -> dict:
+    ) -> (dict, dict):
         """Validation pass.
 
         Args:
@@ -109,6 +153,7 @@ class AbstrctSegmenter(nn.Module):
 
         Returns:
             dict: mean loss, validation metrics.
+            dict: valid predictions examples.
         """
         self.eval()
         val_loss, mean_val_dice, mean_val_iou = 0, 0, 0
@@ -126,11 +171,13 @@ class AbstrctSegmenter(nn.Module):
             mean_val_dice += dice_score / len(val_loader)
             mean_val_iou += iou_score / len(val_loader)
 
+        pred_examples = self.prepare_pred_examples(X=X, y=y, y_pred=y_pred, n_samples=8)
+
         return {
             "val_loss": val_loss,
             "val_dice_score": mean_val_dice,
             "val_iou_score": mean_val_iou,
-        }
+        }, pred_examples
 
     def one_train_epoch(
         self,
@@ -139,7 +186,7 @@ class AbstrctSegmenter(nn.Module):
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler._LRScheduler = None,
         device: Literal["cuda", "cpu"] = "cuda",
-    ) -> dict:
+    ) -> (dict, dict):
         """Training epoch.
 
         Args:
@@ -151,6 +198,7 @@ class AbstrctSegmenter(nn.Module):
 
         Returns:
             dict: loss and training metrics.
+            dict: train predictions examples.
         """
         self.train()
         train_loss, mean_train_dice, mean_train_iou = 0, 0, 0
@@ -172,8 +220,11 @@ class AbstrctSegmenter(nn.Module):
 
         if scheduler is not None:
             scheduler.step()
+
+        pred_examples = self.prepare_pred_examples(X=X, y=y, y_pred=y_pred, n_samples=8)
+
         return {
             "train_loss": train_loss,
             "train_dice_score": mean_train_dice,
             "train_iou_score": mean_train_iou,
-        }
+        }, pred_examples

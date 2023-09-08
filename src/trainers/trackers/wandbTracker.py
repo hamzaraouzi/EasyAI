@@ -36,6 +36,37 @@ class WandBTracker(AbstractTracker):
         """
         wandb.log(metrics)
 
+    def log_pred_examples(self, task: str, train_dict: dict, valid_dict: dict):
+        """_summary_.
+
+        Args:
+            task (str): _description_
+            train_dict (dict): _description_
+            valid_dict (dict): _description_
+        """
+        if task in ["multiclass-semantic-segmentation", "binary-semantic-segmentation"]:
+            train_image = wandb.Image(
+                train_dict["images"],
+                masks={
+                    "predictions": {"mask_data": train_dict["pred_masks"]},
+                    "ground_truth": {"mask_data": train_dict["true_masks"]},
+                },
+            )
+
+            valid_image = wandb.Image(
+                valid_dict["images"],
+                masks={
+                    "predictions": {"mask_data": valid_dict["pred_masks"]},
+                    "ground_truth": {"mask_data": valid_dict["true_masks"]},
+                },
+            )
+
+        else:
+            pass
+
+        wandb.log({"train_pred": train_image})
+        wandb.log({"valid_pred": valid_image})
+
     def log_checkpoint(self, ckpt_path: str = "../checkpoints/*"):
         """best weights to weights and biases.
 
