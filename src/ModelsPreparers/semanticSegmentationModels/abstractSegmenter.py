@@ -72,19 +72,26 @@ class AbstrctSegmenter(nn.Module):
         """
         images = torchvision.utils.make_grid(X[:n_samples, ...], normalize=True)
 
-        images = images.reshape(1, 2, 0) if self.in_channels > 1 else images
-
-        true_masks = torchvision.utils.make_grid(
-            y[:n_samples, ...].float(), normalize=True
-        )
-
+        images = images.permute((1, 2, 0)) if self.in_channels > 1 else images
         if self.num_classes == 1:
             pred_masks = torch.sigmoid(y_pred) > 0.5
+            pred_masks = pred_masks.unsqueeze(1)
+            true_masks = y.unsqueeze(1)
+
+            true_masks = torchvision.utils.make_grid(
+                y[:n_samples, ...].float(), normalize=True
+            )
+
+            pred_masks = torchvision.utils.make_grid(
+                pred_masks[:n_samples, ...].float(), normalize=True
+            )
+
+            pred_masks = pred_masks.squeeze(1)
+            true_masks = true_masks.squeeze(1)
+
         else:
             pred_masks = torch.softmax(y_pred, dim=1)
             # TODO: I may need to add the argmax for multi class
-
-        pred_masks = pred_masks[:n_samples, ...]
 
         return {
             "images": images.detach().cpu().numpy(),
