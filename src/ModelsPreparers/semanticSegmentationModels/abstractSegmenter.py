@@ -75,19 +75,19 @@ class AbstrctSegmenter(nn.Module):
         images = images.permute((1, 2, 0)) if self.in_channels > 1 else images
         if self.num_classes == 1:
             pred_masks = torch.sigmoid(y_pred) > 0.5
+
             pred_masks = pred_masks.unsqueeze(1)
             true_masks = y.unsqueeze(1)
 
             true_masks = torchvision.utils.make_grid(
-                y[:n_samples, ...].float(), normalize=True
+                true_masks[:n_samples, ...].float(), normalize=True
             )
-
             pred_masks = torchvision.utils.make_grid(
                 pred_masks[:n_samples, ...].float(), normalize=True
             )
 
-            pred_masks = pred_masks.squeeze(1)
-            true_masks = true_masks.squeeze(1)
+            pred_masks = pred_masks[0, ...]
+            true_masks = true_masks[0, ...]
 
         else:
             pred_masks = torch.softmax(y_pred, dim=1)
