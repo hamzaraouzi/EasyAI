@@ -1,5 +1,5 @@
 """Abstract Trainer."""
-from typing import Optional, Union
+from typing import Optional, Union, List, Dict
 from abc import abstractmethod
 import yaml
 import torch.nn as nn
@@ -18,6 +18,10 @@ from torch.optim.lr_scheduler import (
 )
 from torch import optim
 from collections import ChainMap
+import onnx
+import openvino.runtime as ov
+from openvino.tools.mo import convert_model
+import nncf
 
 
 class AbstractTrainer:
@@ -40,9 +44,16 @@ class AbstractTrainer:
         self.project = params2values["project"]
         self.experiment_tracker = params2values["experiment_tracker"]
         self.monitor_metric = params2values["monitor_metric"]
+        self.export = params2values["export"]
 
         self.lr_schedular_conf = (
             dict(ChainMap(*params2values["learning_rate_scheduler"]))
+            if "learning_rate_scheduler" in params2values.keys()
+            else None
+        )
+
+        self.postTrainQuant_conf = (
+            dict(ChainMap(*params2values["PostTrainingQuantization"]))
             if "learning_rate_scheduler" in params2values.keys()
             else None
         )
@@ -138,15 +149,81 @@ class AbstractTrainer:
                 verbose=True,
             )
 
-    def save_best_weights(self, model: nn.Module, model_name: str) -> None:
+    def save_best_weights(
+        self, model: nn.Module, model_name: str, export_conf: List[Dict]
+    ) -> None:
         """save best weights.
 
         Args:
-            model (nn.Module): pytorch model.
-            model_name (str):  model name.
+            model (nn.Module): _description_
+            model_name (str): _description_
+            export_conf (List[Dict]): _description_
         """
         os.makedirs("../checkpoints", exist_ok=True)
         torch.save(model, f"../checkpoints/{model_name}.pth")
+
+        format = export_conf[0]["format"]
+        if format == "onnx":
+            input_shape = tuple(export_conf[0]["input_shape"])
+            torch.onnx.export(model, input_shape, f"../checkpoints/{model_name}.onnx")
+
+    def basic_qunatization(
+        self, model_name: str, conf: dict, calibration_loader: DataLoader
+    ) -> None:
+        """_summary_.
+
+        Args:
+            model_name (str): _description_
+            conf (dict): _description_
+            calibration_loader (DataLoader): _description_
+        """
+        model = onnx.load(f"../checkpoints/{model_name}.onnx")
+        params = conf["params"]
+
+        model_type_dict = {"TRANSFORMER": nncf.ModelType.TRANSFORMER, "None": None}
+        preset_dict = {
+            "PERFORMANCE": nncf.QuantizationPreset.PERFORMANCE,
+            "MIXED": nncf.QuantizationPreset.MIXED,
+        }
+        target_device = {
+            "ANY": nncf.TargetDevice.ANY,
+            "CPU": nncf.TargetDevice.CPU,
+            "CPU_SPR": nncf.TargetDevice.CPU_SPR,
+            "GPU": nncf.TargetDevice.GPU,
+        }
+
+        def transform_fn(data_item):
+            images, _ = data_item
+            return {model.graph.input[0].name: images.numpy()}
+
+        calibration_dataset = nncf.Dataset(calibration_loader, transform_fn)
+
+        quantized_model = nncf.quantize(
+            model,
+            calibration_dataset,
+            model_type=model_type_dict[params["model_type"]],
+            preset=preset_dict[params["preset"]],
+            fast_bias_correction=eval(params["fast_bias_correction"]),
+            subset_size=eval(params["subset_size"]),
+            target_device=target_device[params["target_device"]],
+        )
+
+        onnx.save(quantized_model, f"../checkpoints/quantized_{model_name}.onnx")
+
+    def postTrainingQuantization(
+        self, model_name: str, conf: dict, calibration_loader: DataLoader
+    ) -> None:
+        """_summary_.
+
+        Args:
+            model_name (str): _description_
+            conf (dict): _description_
+            calibration_loader (DataLoader): _description_
+        """
+        if conf["method"] == "BasicQuantization":
+            self.basic_qunatization(model_name, conf, calibration_loader)
+        else:
+            pass
 
     @abstractmethod
     def define_criterion(self) -> nn.Module:
@@ -310,6 +387,8 @@ class AbstractTrainer:
                 break
 
         self.exp_tracker.log_checkpoint()
+
+        self.post_training_qunatization(self.postTrainQuant_conf)
 
     def run(
         self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
