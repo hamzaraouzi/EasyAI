@@ -375,7 +375,9 @@ class AbstractTrainer:
                 and self.monitor_metric["mode"] == "min"
             ):
 
-                self.save_best_weights(model, model_name=model.model_name)
+                self.save_best_weights(
+                    model, model_name=model.model_name, export_conf=self.export
+                )
                 best_metric = metrics[self.monitor_metric["name"]]
                 no_improvement = 0
 
