@@ -46,6 +46,7 @@ class AbstractTrainer:
         self.monitor_metric = params2values["monitor_metric"]
         self.export = params2values["export"]
 
+        print(self.export, "++++++")
         self.lr_schedular_conf = (
             dict(ChainMap(*params2values["learning_rate_scheduler"]))
             if "learning_rate_scheduler" in params2values.keys()
@@ -164,7 +165,7 @@ class AbstractTrainer:
 
         format = export_conf[0]["format"]
         if format == "onnx":
-            input_shape = tuple(export_conf[0]["input_shape"])
+            input_shape = tuple(export_conf[1]["input_shape"])
             torch.onnx.export(model, input_shape, f"../checkpoints/{model_name}.onnx")
 
     def basic_qunatization(
