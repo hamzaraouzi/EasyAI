@@ -23,6 +23,8 @@ training:
   - export:
       - format: onnx
       - input_shape: [1, 3, 256, 256]
+      - input_names: [input_1]
+      - output_names: [output_1]
 
   - PostTrainingQuantization:
       - method: BasicQuantization #TODO: add Quantization with accuracy controle (OpenVINO)

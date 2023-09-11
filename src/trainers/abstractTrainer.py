@@ -165,8 +165,19 @@ class AbstractTrainer:
 
         format = export_conf[0]["format"]
         if format == "onnx":
-            input_shape = tuple(export_conf[1]["input_shape"])
-            torch.onnx.export(model, input_shape, f"../checkpoints/{model_name}.onnx")
+            input_shape = list(export_conf[1]["input_shape"])
+            dummy_input = torch.randn(**input_shape, device=self.device)
+            input_names = list(export_conf[2]["input_names"])
+            output_names = list(export_conf[2]["output_names"])
+
+            torch.onnx.export(
+                model,
+                dummy_input,
+                f"../checkpoints/{model_name}.pth",
+                verbose=True,
+                input_names=input_names,
+                output_names=output_names,
+            )
 
     def basic_qunatization(
         self, model_name: str, conf: dict, calibration_loader: DataLoader
