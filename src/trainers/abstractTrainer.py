@@ -168,7 +168,7 @@ class AbstractTrainer:
             input_shape = tuple(export_conf[1]["input_shape"])
             dummy_input = torch.randn(input_shape, device=self.device)
             input_names = list(export_conf[2]["input_names"])
-            output_names = list(export_conf[2]["output_names"])
+            output_names = list(export_conf[3]["output_names"])
 
             torch.onnx.export(
                 model,
