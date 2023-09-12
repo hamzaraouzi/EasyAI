@@ -231,11 +231,11 @@ class AbstractTrainer:
         quantized_model = nncf.quantize(
             model,
             calibration_dataset,
-            model_type=model_type_dict[params["model_type"]],
-            preset=preset_dict[params["preset"]],
-            fast_bias_correction=eval(params["fast_bias_correction"]),
-            subset_size=eval(params["subset_size"]),
-            target_device=target_device[params["target_device"]],
+            model_type=model_type_dict[params[0]["model_type"]],
+            preset=preset_dict[params[1]["preset"]],
+            fast_bias_correction=eval(params[2]["fast_bias_correction"]),
+            subset_size=eval(params[3]["subset_size"]),
+            target_device=target_device[params[4]["target_device"]],
         )
 
         onnx.save(quantized_model, f"../checkpoints/quantized_{model_name}.onnx")
