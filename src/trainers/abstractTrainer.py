@@ -419,7 +419,11 @@ class AbstractTrainer:
         self.export(
             model=model, model_name=model.model_name, export_conf=self.export_conf
         )
-        self.postTrainingQuantization(self.postTrainQuant_conf)
+        self.postTrainingQuantization(
+            model_name=model.model_name,
+            conf=self.postTrainQuant_conf,
+            calibration_loader=val_loader,
+        )
         self.exp_tracker.log_checkpoint()
 
     def run(
