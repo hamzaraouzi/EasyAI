@@ -163,21 +163,43 @@ class AbstractTrainer:
         os.makedirs("../checkpoints", exist_ok=True)
         torch.save(model, f"../checkpoints/{model_name}.pth")
 
+    def export_onnx(
+        self, model: nn.Module, model_name: str, export_conf: List[Dict]
+    ) -> None:
+        """_summary_.
+
+        Args:
+            model (nn.Module): _description_
+            model_name (str): _description_
+            export_conf (List[Dict]): _description_
+        """
+        input_shape = tuple(export_conf[1]["input_shape"])
+        dummy_input = torch.randn(input_shape, device=self.device)
+        input_names = list(export_conf[2]["input_names"])
+        output_names = list(export_conf[3]["output_names"])
+
+        torch.onnx.export(
+            model,
+            dummy_input,
+            f"../checkpoints/{model_name}.onnx",
+            verbose=True,
+            input_names=input_names,
+            output_names=output_names,
+        )
+
+    def export(
+        self, model: nn.Module, model_name: str, export_conf: List[Dict]
+    ) -> None:
+        """_summary_.
+
+        Args:
+            model (nn.Module): _description_
+            model_name (str): _description_
+            export_conf (List[Dict]): _description_
+        """
         format = export_conf[0]["format"]
         if format == "onnx":
-            input_shape = tuple(export_conf[1]["input_shape"])
-            dummy_input = torch.randn(input_shape, device=self.device)
-            input_names = list(export_conf[2]["input_names"])
-            output_names = list(export_conf[3]["output_names"])
-
-            torch.onnx.export(
-                model,
-                dummy_input,
-                f"../checkpoints/{model_name}.pth",
-                verbose=True,
-                input_names=input_names,
-                output_names=output_names,
-            )
+            self.export_onnx(model, model_name, export_conf)
 
     def basic_qunatization(
         self, model_name: str, conf: dict, calibration_loader: DataLoader
@@ -387,9 +409,7 @@ class AbstractTrainer:
                 and self.monitor_metric["mode"] == "min"
             ):
 
-                self.save_best_weights(
-                    model, model_name=model.model_name, export_conf=self.export
-                )
+                self.save_best_weights(model, model_name=model.model_name)
                 best_metric = metrics[self.monitor_metric["name"]]
                 no_improvement = 0
 
@@ -400,9 +420,9 @@ class AbstractTrainer:
                 # log a message that no improvement has been made for the {no_improvement} epochs
                 break
 
+        self.export(model=model, model_name=model.model_name, export_conf=self.export)
+        self.postTrainingQuantization(self.postTrainQuant_conf)
         self.exp_tracker.log_checkpoint()
-
-        self.post_training_qunatization(self.postTrainQuant_conf)
 
     def run(
         self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
