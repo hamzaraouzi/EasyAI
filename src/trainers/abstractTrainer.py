@@ -150,15 +150,12 @@ class AbstractTrainer:
                 verbose=True,
             )
 
-    def save_best_weights(
-        self, model: nn.Module, model_name: str, export_conf: List[Dict]
-    ) -> None:
+    def save_best_weights(self, model: nn.Module, model_name: str) -> None:
         """save best weights.
 
         Args:
             model (nn.Module): _description_
             model_name (str): _description_
-            export_conf (List[Dict]): _description_
         """
         os.makedirs("../checkpoints", exist_ok=True)
         torch.save(model, f"../checkpoints/{model_name}.pth")
