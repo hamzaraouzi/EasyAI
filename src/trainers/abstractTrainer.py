@@ -44,9 +44,8 @@ class AbstractTrainer:
         self.project = params2values["project"]
         self.experiment_tracker = params2values["experiment_tracker"]
         self.monitor_metric = params2values["monitor_metric"]
-        self.export = params2values["export"]
+        self.export_conf = params2values["export"]
 
-        print(self.export, "++++++")
         self.lr_schedular_conf = (
             dict(ChainMap(*params2values["learning_rate_scheduler"]))
             if "learning_rate_scheduler" in params2values.keys()
@@ -417,7 +416,9 @@ class AbstractTrainer:
                 # log a message that no improvement has been made for the {no_improvement} epochs
                 break
 
-        self.export(model=model, model_name=model.model_name, export_conf=self.export)
+        self.export(
+            model=model, model_name=model.model_name, export_conf=self.export_conf
+        )
         self.postTrainingQuantization(self.postTrainQuant_conf)
         self.exp_tracker.log_checkpoint()
 
