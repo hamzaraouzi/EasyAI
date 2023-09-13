@@ -54,7 +54,7 @@ class AbstractTrainer:
 
         self.postTrainQuant_conf = (
             dict(ChainMap(*params2values["PostTrainingQuantization"]))
-            if "learning_rate_scheduler" in params2values.keys()
+            if "PostTrainingQuantization" in params2values.keys()
             else None
         )
 
@@ -419,11 +419,12 @@ class AbstractTrainer:
         self.export(
             model=model, model_name=model.model_name, export_conf=self.export_conf
         )
-        self.postTrainingQuantization(
-            model_name=model.model_name,
-            conf=self.postTrainQuant_conf,
-            calibration_loader=val_loader,
-        )
+        if self.postTrainQuant_conf is not None:
+            self.postTrainingQuantization(
+                model_name=model.model_name,
+                conf=self.postTrainQuant_conf,
+                calibration_loader=val_loader,
+            )
         self.exp_tracker.log_checkpoint()
 
     def run(
