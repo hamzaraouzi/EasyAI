@@ -181,6 +181,10 @@ class AbstractTrainer:
             verbose=True,
             input_names=input_names,
             output_names=output_names,
+            dynamic_axes={
+                input_names[0]: {0: "batch_size"},
+                output_names[0]: {0: "batch_size"},
+            },
         )
 
     def export(
@@ -233,8 +237,8 @@ class AbstractTrainer:
             calibration_dataset,
             model_type=model_type_dict[params[0]["model_type"]],
             preset=preset_dict[params[1]["preset"]],
-            fast_bias_correction=eval(params[2]["fast_bias_correction"]),
-            subset_size=eval(params[3]["subset_size"]),
+            fast_bias_correction=params[2]["fast_bias_correction"],
+            subset_size=params[3]["subset_size"],
             target_device=target_device[params[4]["target_device"]],
         )
 
@@ -347,14 +351,21 @@ class AbstractTrainer:
         )
 
     def train(
-        self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
+        self,
+        model: nn.Module,
+        train_loader: DataLoader,
+        val_loader: DataLoader,
+        calib_quant_loader: DataLoader,
+        valid_quant_loader: DataLoader,
     ) -> None:
         """training function.
 
         Args:
-            model (nn.Module): pytorch model.
-            train_loader (DataLoader): training data loader.
-            val_loader (DataLoader): validation data loader.
+            model (nn.Module): _description_
+            train_loader (DataLoader): _description_
+            val_loader (DataLoader): _description_
+            calib_quant_loader (DataLoader): _description_
+            valid_quant_loader (DataLoader): _description_
         """
         model.to(device=self.device)
         self.exp_tracker = self.prepare_exp_tracker()
@@ -423,12 +434,17 @@ class AbstractTrainer:
             self.postTrainingQuantization(
                 model_name=model.model_name,
                 conf=self.postTrainQuant_conf,
-                calibration_loader=val_loader,
+                calibration_loader=valid_quant_loader,
             )
         self.exp_tracker.log_checkpoint()
 
     def run(
-        self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
+        self,
+        model: nn.Module,
+        train_loader: DataLoader,
+        val_loader: DataLoader,
+        calib_quant_loader: DataLoader,
+        valid_quant_loader: DataLoader,
     ) -> None:
         """run training step.
 
@@ -436,11 +452,20 @@ class AbstractTrainer:
             model (nn.Module): pytorch model.
             train_loader (DataLoader): training data loader.
             val_loader (DataLoader): validation data loader.
+            calib_quant_loader (DataLoader): _description_
+            valid_quant_loader (DataLoader): _description_
         """
-        self.train(model, train_loader, val_loader)
+        self.train(
+            model, train_loader, val_loader, calib_quant_loader, valid_quant_loader
+        )
 
     def __call__(
-        self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader
+        self,
+        model: nn.Module,
+        train_loader: DataLoader,
+        val_loader: DataLoader,
+        calib_quant_loader: DataLoader,
+        valid_quant_loader: DataLoader,
     ) -> None:
         """Call method for trainers.
 
@@ -448,5 +473,9 @@ class AbstractTrainer:
             model (nn.Module): _description_
             train_loader (DataLoader): _description_
             val_loader (DataLoader): _description_
+            calib_quant_loader (DataLoader): _description_
+            valid_quant_loader (DataLoader): _description_
         """
-        self.run(model, train_loader, val_loader)
+        self.run(
+            model, train_loader, val_loader, calib_quant_loader, valid_quant_loader
+        )
