@@ -185,6 +185,7 @@ class AbstractTrainer:
                 input_names[0]: {0: "batch_size"},
                 output_names[0]: {0: "batch_size"},
             },
+            opset_version=12,
         )
 
     def export(
