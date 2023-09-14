@@ -60,13 +60,12 @@ class WandBTracker(AbstractTracker):
                     "ground_truth": {"mask_data": valid_dict["true_masks"]},
                 },
             )
+            wandb.log({"train_pred": train_image})
+            wandb.log({"valid_pred": valid_image})
 
         elif task == "classification":
             pass
             # TODO: implement log examples for classification models.
-
-        wandb.log({"train_pred": train_image})
-        wandb.log({"valid_pred": valid_image})
 
     def log_checkpoint(self, ckpt_path: str = "../checkpoints/*"):
         """best weights to weights and biases.
