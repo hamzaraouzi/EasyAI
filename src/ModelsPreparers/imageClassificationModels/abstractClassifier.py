@@ -62,6 +62,23 @@ class AbstractClassifier(nn.Module):
         """
         pass
 
+    def prepare_pred_examples(
+        self, X: torch.Tensor, y: torch.Tensor, y_pred: torch.Tensor, n_samples: int
+    ) -> dict:
+        """_summary_.
+
+        Args:
+            X (torch.Tensor): _description_
+            y (torch.Tensor): _description_
+            y_pred (torch.Tensor): _description_
+            n_samples (int): _description_
+
+        Returns:
+            dict: _description_
+        """
+        # TODO: implement this method.
+        return None
+
     def calculate_metrics(
         self,
         predictions: torch.Tensor,
@@ -125,11 +142,12 @@ class AbstractClassifier(nn.Module):
                 mean_acc += acc / len(val_loader)
                 mean_prec += prec / len(val_loader)
 
+        pred_examples = self.prepare_pred_examples(X=X, y=y, y_pred=y_pred, n_samples=8)
         return {
             "val_loss": val_loss,
             "val_accuracy": mean_acc,
             "val_precision": mean_prec,
-        }
+        }, pred_examples
 
     def one_train_epoch(
         self,
@@ -172,8 +190,9 @@ class AbstractClassifier(nn.Module):
         if scheduler is not None:
             scheduler.step()
 
+        pred_examples = self.prepare_pred_examples(X=X, y=y, y_pred=y_pred, n_samples=8)
         return {
             "train_loss": train_loss,
             "train_accuracy": mean_acc,
             "train_precision": mean_prec,
-        }
+        }, pred_examples

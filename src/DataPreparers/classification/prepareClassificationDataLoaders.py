@@ -60,7 +60,22 @@ class ClassificaionDataLoader(AbstractDataPreparer):
             test_loader = DataLoader(
                 test_ds, batch_size=self.batch_size, shuffle=True, num_workers=2
             )
-            return train_loader, test_loader, None
+
+            # additional loader will be used just for for quantization
+            # will be ignored in case of optimization is applied
+
+            calib_quantization_loader = DataLoader(
+                train_ds, batch_size=1, shuffle=False
+            )
+            valid_quantization_loader = DataLoader(test_ds, batch_size=1, shuffle=False)
+
+            return (
+                train_loader,
+                test_loader,
+                None,
+                calib_quantization_loader,
+                valid_quantization_loader,
+            )
 
         if self.split == "train-val-test":
 
@@ -100,5 +115,17 @@ class ClassificaionDataLoader(AbstractDataPreparer):
             val_loader = DataLoader(
                 val_ds, batch_size=self.batch_size, shuffle=True, num_workers=2
             )
+            # additional loader will be used just for for quantization
+            # will be ignored in case of optimization is applied
 
-            return train_loader, val_loader, test_loader
+            calib_quantization_loader = DataLoader(
+                train_ds, batch_size=1, shuffle=False
+            )
+            valid_quantization_loader = DataLoader(val_ds, batch_size=1, shuffle=False)
+            return (
+                train_loader,
+                val_loader,
+                test_loader,
+                calib_quantization_loader,
+                valid_quantization_loader,
+            )
