@@ -61,8 +61,9 @@ class WandBTracker(AbstractTracker):
                 },
             )
 
-        else:
+        elif task == "classification":
             pass
+            # TODO: implement log examples for classification models.
 
         wandb.log({"train_pred": train_image})
         wandb.log({"valid_pred": valid_image})
@@ -73,7 +74,7 @@ class WandBTracker(AbstractTracker):
         Args:
             ckpt_path (str): _description_. Defaults to "../checkpoints".
         """
-        self.artifact.add_dir("../checkpoints")
+        self.artifact.add_dir("../checkpoints/")
         wandb.log_artifact(self.artifact)
 
     def __call__(self, metrics: dict) -> None:
