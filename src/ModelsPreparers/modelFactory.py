@@ -7,6 +7,7 @@ from .imageClassificationModels.mobileNetv2 import MobileNetV2
 from .imageClassificationModels.mobileNetv3 import MobileNetV3
 from .imageClassificationModels.resnet import Resnet101, Resnet34
 from .imageClassificationModels.xception import Xception
+from .imageClassificationModels.vit.vit import VIT
 
 from .semanticSegmentationModels.unet import UNET
 from .semanticSegmentationModels.attention_unet import Attention_unet
@@ -56,6 +57,11 @@ class ModelFactory:
         Returns:
             nn.module: pytorch  model.
         """
+        if self.model_name == "vit":
+            return VIT.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
         if self.model_name == "mobileNetV1":
             return MobileNetV1.prepareModel(
                 model_name=self.model_name, num_classes=self.num_classes
