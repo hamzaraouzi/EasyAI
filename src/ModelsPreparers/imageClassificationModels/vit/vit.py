@@ -11,6 +11,7 @@ class VIT(AbstractClassifier):
 
     def __init__(
         self,
+        model_name: str = "vit",
         image_size: tuple = (256, 256),
         path_size: tuple = (16, 16),
         in_channels: int = 3,
@@ -24,6 +25,7 @@ class VIT(AbstractClassifier):
         """vit class ini method.
 
         Args:
+            model_name (str): _description_. Defaults to "vit"
             image_size (tuple): _description_. Defaults to (224, 224).
             path_size (tuple): _description_. Defaults to (16, 16).
             in_channels (int): _description_. Defaults to 3.
@@ -34,7 +36,7 @@ class VIT(AbstractClassifier):
             mlp_ratio (float): _description_. Defaults to 4.0.
             num_classes (int): _description_. Defaults to 10.
         """
-        super(VIT, self).__init__()
+        super(VIT, self).__init__(model_name=model_name, num_classes=num_classes)
 
         self.embedding_layer = EmbeddingStem(
             image_size=image_size,
