@@ -431,13 +431,6 @@ class AbstractTrainer:
         self.export(
             model=model, model_name=model.model_name, export_conf=self.export_conf
         )
-        if self.postTrainQuant_conf is not None:
-            self.postTrainingQuantization(
-                model_name=model.model_name,
-                conf=self.postTrainQuant_conf,
-                calibration_loader=valid_quant_loader,
-            )
-        self.exp_tracker.log_checkpoint()
 
     def run(
         self,
@@ -459,6 +452,14 @@ class AbstractTrainer:
         self.train(
             model, train_loader, val_loader, calib_quant_loader, valid_quant_loader
         )
+
+        if self.postTrainQuant_conf is not None:
+            self.postTrainingQuantization(
+                model_name=model.model_name,
+                conf=self.postTrainQuant_conf,
+                calibration_loader=valid_quant_loader,
+            )
+        self.exp_tracker.log_checkpoint()
 
     def __call__(
         self,

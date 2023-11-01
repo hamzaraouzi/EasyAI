@@ -111,7 +111,6 @@ class AbstrctSegmenter(nn.Module):
         Returns:
             Tuple[float, float]: dice and iou scores
         """
-        # TODO: fix mertics calculation for segmentation.
         task = (
             "multiclass-semantic-segmentation"
             if self.num_classes > 1
