@@ -2,12 +2,12 @@
 import torch.nn as nn
 import yaml
 
-from .imageClassificationModels.mobileNetv1 import MobileNetV1
-from .imageClassificationModels.mobileNetv2 import MobileNetV2
-from .imageClassificationModels.mobileNetv3 import MobileNetV3
-from .imageClassificationModels.resnet import Resnet101, Resnet34
-from .imageClassificationModels.xception import Xception
-from .imageClassificationModels.vit.vit import VIT
+from .imageClassificationModels.cnn.mobileNetv1 import MobileNetV1
+from .imageClassificationModels.cnn.mobileNetv2 import MobileNetV2
+from .imageClassificationModels.cnn.mobileNetv3 import MobileNetV3
+from .imageClassificationModels.cnn.resnet import Resnet101, Resnet34
+from .imageClassificationModels.cnn.xception import Xception
+from .imageClassificationModels.vit.vit.vit import VIT
 
 from .semanticSegmentationModels.unet import UNET
 from .semanticSegmentationModels.attention_unet import Attention_unet

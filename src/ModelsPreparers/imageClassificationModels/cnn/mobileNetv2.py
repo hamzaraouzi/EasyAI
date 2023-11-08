@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from .abstractClassifier import AbstractClassifier
+from ..abstractClassifier import AbstractClassifier
 
 
 def conv_bn(in_channels: int, out_channels: int, stride: int) -> nn.Module:

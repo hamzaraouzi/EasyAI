@@ -1,7 +1,7 @@
 """Xception architecture implementation."""
 import torch
 import torch.nn as nn
-from .abstractClassifier import AbstractClassifier
+from ..abstractClassifier import AbstractClassifier
 
 
 class Separable(nn.Module):
