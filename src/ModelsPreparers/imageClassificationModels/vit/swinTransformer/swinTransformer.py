@@ -97,3 +97,46 @@ class SwinTransformer(AbstractClassifier):
         x = x.mean(dim=[2, 3])
         x = self.mlp(x)
         return x
+
+    @staticmethod
+    def prepareModel(model_name: str, num_classes: int = 10) -> nn.Module:
+        """prepare model.
+
+        Args:
+            model_name (str): _description_
+            num_classes (int): _description_. Defaults to 10.
+
+        Returns:
+            nn.Module: _description_
+        """
+        if model_name == "swin-t":
+            return SwinTransformer(
+                hidden_dim=96,
+                layers=(2, 2, 6, 2),
+                heads=(3, 6, 12, 24),
+                model_name=model_name,
+            )
+
+        elif model_name == "swin-s":
+            return SwinTransformer(
+                hidden_dim=96,
+                layers=(2, 2, 18, 2),
+                heads=(3, 6, 12, 24),
+                model_name=model_name,
+            )
+
+        elif model_name == "swin-b":
+            return SwinTransformer(
+                hidden_dim=128,
+                layers=(2, 2, 18, 2),
+                heads=(4, 8, 16, 32),
+                model_name=model_name,
+            )
+
+        elif model_name == "swin-l":
+            return SwinTransformer(
+                hidden_dim=192,
+                layers=(2, 2, 18, 2),
+                heads=(6, 12, 24, 48),
+                model_name=model_name,
+            )
