@@ -3,7 +3,7 @@
 import torch.nn as nn
 import torch
 from .layers import EmbeddingStem, OutputLayer, Transformer
-from ..abstractClassifier import AbstractClassifier
+from ...abstractClassifier import AbstractClassifier
 
 
 class VIT(AbstractClassifier):

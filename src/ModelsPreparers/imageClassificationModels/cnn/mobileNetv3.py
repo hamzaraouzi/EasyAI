@@ -3,7 +3,7 @@
 import torch
 from torch import nn
 import numpy as np
-from .abstractClassifier import AbstractClassifier
+from ..abstractClassifier import AbstractClassifier
 from typing import Literal
 
 

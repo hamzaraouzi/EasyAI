@@ -2,12 +2,15 @@
 import torch.nn as nn
 import yaml
 
-from .imageClassificationModels.mobileNetv1 import MobileNetV1
-from .imageClassificationModels.mobileNetv2 import MobileNetV2
-from .imageClassificationModels.mobileNetv3 import MobileNetV3
-from .imageClassificationModels.resnet import Resnet101, Resnet34
-from .imageClassificationModels.xception import Xception
-from .imageClassificationModels.vit.vit import VIT
+from .imageClassificationModels.cnn.mobileNetv1 import MobileNetV1
+from .imageClassificationModels.cnn.mobileNetv2 import MobileNetV2
+from .imageClassificationModels.cnn.mobileNetv3 import MobileNetV3
+from .imageClassificationModels.cnn.resnet import Resnet101, Resnet34
+from .imageClassificationModels.cnn.xception import Xception
+from .imageClassificationModels.vit.vit.vit import VIT
+from .imageClassificationModels.vit.swinTransformer.swinTransformer import (
+    SwinTransformer,
+)
 
 from .semanticSegmentationModels.unet import UNET
 from .semanticSegmentationModels.attention_unet import Attention_unet
@@ -109,6 +112,11 @@ class ModelFactory:
 
         if self.model_name == "r2-attention-unet":
             return R2AttU_net.prepareModel(
+                model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name in ["swin-t", "swin-s", "swin-b", "swin-l"]:
+            return SwinTransformer.prepareModel(
                 model_name=self.model_name, num_classes=self.num_classes
             )
 

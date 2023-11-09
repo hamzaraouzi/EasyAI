@@ -5,3 +5,4 @@ src/modelsPreparers/__pycache__/*
 src/modelsPreparers/imageClassificationModels/__pycache__/*
 wandb/*
 __pycache__/
+test.ipynb
