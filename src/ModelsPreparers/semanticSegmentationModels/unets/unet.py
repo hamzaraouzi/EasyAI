@@ -3,19 +3,26 @@ from abc import abstractmethod
 import torch
 import torch.nn as nn
 import torchvision.transforms.functional as TF
-from .abstractSegmenter import AbstrctSegmenter
+from ..abstractSegmenter import AbstrctSegmenter
 
 
 class UNET(AbstrctSegmenter):
     """Unet module class."""
 
-    def __init__(self, model_name: str, in_channels: int = 3, num_classes: int = 1):
+    def __init__(
+        self,
+        model_name: str,
+        in_channels: int = 3,
+        num_classes: int = 1,
+        **kwargs: dict
+    ):
         """init method for unet model.
 
         Args:
             model_name (str): model name.
             in_channels (int): input channels. Defaults to 3.
             num_classes (int): number of classes. Defaults to 1.
+            kwargs (dict): _description_.
         """
         super(UNET, self).__init__(
             model_name=model_name, num_classes=num_classes, in_channels=in_channels
@@ -103,7 +110,7 @@ class UNET(AbstrctSegmenter):
 
     @staticmethod
     def prepareModel(
-        model_name: str, in_channels: int = 3, num_classes: int = 10
+        model_name: str, in_channels: int = 3, num_classes: int = 10, **kwargs: dict
     ) -> nn.Module:
         """Desired model preparation.
 
@@ -111,6 +118,7 @@ class UNET(AbstrctSegmenter):
             model_name (str): model_name.
             in_channels (int): input channels.
             num_classes (int): number of classes.
+            kwargs (dict): _description_.
 
         Returns:
             nn.Module: _description_

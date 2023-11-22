@@ -1,4 +1,5 @@
 """mobileNeV2 implemetation."""
+from typing import List
 import torch
 import torch.nn as nn
 import numpy as np
@@ -174,7 +175,7 @@ class MobileNetV2(AbstractClassifier):
             make_divisible(1280 * width_multiplier) if width_multiplier > 1.0 else 1280
         )
 
-        self.features = [conv_bn(in_channels, 32, stride=2)]
+        self.features = nn.ModuleList([conv_bn(in_channels, 32, stride=2)])
         in_channels = 32
 
         for t, c, n, s in inverted_residual_parameters:
@@ -199,9 +200,23 @@ class MobileNetV2(AbstractClassifier):
                 in_channels = out_channels
 
         self.features.append(conv_1x1_bn(in_channels, self.last_channels_dim))
-        self.features = nn.Sequential(*self.features)
-        self.avg_pool = nn.AvgPool2d(kernel_size=7, stride=1)
+        self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         self.classifier = nn.Linear(self.last_channels_dim, num_classes)
+
+    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """feature extraction method.
+
+        Args:
+            x (torch.Tensor): _description_
+
+        Returns:
+            List[torch.Tensor]: _description_
+        """
+        feats = []
+        for layer in self.features:
+            x = layer(x)
+            feats.append(x)
+        return feats
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward method for MobileNet model.
@@ -212,7 +227,9 @@ class MobileNetV2(AbstractClassifier):
         Returns:
             torch.Tensor: output tensor.
         """
-        x = self.features(x)
+        for layer in self.features:
+            x = layer(x)
+
         x = self.avg_pool(x)
         x = x.reshape(x.shape[0], -1)
         x = self.classifier(x)
@@ -220,14 +237,15 @@ class MobileNetV2(AbstractClassifier):
         return x
 
     @staticmethod
-    def prepareModel(model_name: str, num_classes: int) -> nn.Module:
-        """MobileNet model preparation.
+    def prepareModel(model_name: str, num_classes: int, **kwargs: dict) -> nn.Module:
+        """_summary_.
 
         Args:
-            model_name (str): Model name.
-            num_classes (int): numer of classes.
+            model_name (str): _description_
+            num_classes (int): _description_
+            kwargs (dict): _description_
 
         Returns:
-            nn.Model: _description_
+            nn.Module: _description_
         """
         return MobileNetV2(model_name=model_name, num_classes=num_classes)

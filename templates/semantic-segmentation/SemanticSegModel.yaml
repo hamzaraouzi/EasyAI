@@ -1,5 +1,6 @@
 model:
   - task: "binary-semantic-segmentation"
-  - name: u-net
+  - name: pspnet
+  - backbone: resnet34
   - num_classes: 1
   - pretrained: False

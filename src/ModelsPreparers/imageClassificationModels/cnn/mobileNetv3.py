@@ -4,7 +4,7 @@ import torch
 from torch import nn
 import numpy as np
 from ..abstractClassifier import AbstractClassifier
-from typing import Literal
+from typing import List, Literal
 
 
 def make_divisible(x: int, divisible_by: int = 8) -> int:
@@ -299,7 +299,7 @@ class MobileNetV3(AbstractClassifier):
             ],
         }
 
-        self.features = [conv_bn(in_channels, 16, stride=2)]
+        self.features = nn.ModuleList([conv_bn(in_channels, 16, stride=2)])
         for (
             in_channles,
             hidden_dim,
@@ -326,8 +326,6 @@ class MobileNetV3(AbstractClassifier):
                 )
             )
 
-        self.features = nn.Sequential(*self.features)
-
         out1x1 = {"large": 960, "small": 576}
         out1x1 = (
             make_divisible(out1x1[mode] * width_multiplier)
@@ -336,13 +334,30 @@ class MobileNetV3(AbstractClassifier):
         )
         self.conv = conv_1x1_bn(out_channels, out1x1)
 
-        self.avg_pool = nn.AvgPool2d(kernel_size=7, stride=1)
+        self.avg_pool = nn.AdaptiveAvgPool2d((2, 2))
 
         self.classifier = nn.Sequential(
             nn.Conv2d(out1x1, 1024, kernel_size=1, stride=1),
             HSigmoid(),
             nn.Conv2d(1024, num_classes, kernel_size=1, stride=1),
         )
+
+    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """feature extraction method.
+
+        Args:
+            x (torch.Tensor): _description_
+
+        Returns:
+            List[torch.Tensor]: _description_
+        """
+        feats = []
+        for layer in self.features:
+            x = layer(x)
+            feats.append(x)
+        x = self.conv(x)
+        feats.append(x)
+        return feats
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward method.
@@ -353,22 +368,32 @@ class MobileNetV3(AbstractClassifier):
         Returns:
             torch.Tensor: _description_
         """
-        x = self.features(x)
+        for layer in self.features:
+            x = layer(x)
+
         x = self.conv(x)
         x = self.avg_pool(x)
         x = self.classifier(x)
-        x = self.reshape(x.shape[0], -1)
+        x = x.reshape(x.shape[0], -1)
         return x
 
     @staticmethod
-    def prepareModel(model_name: str, num_classes: int) -> nn.Module:
+    def prepareModel(model_name: str, num_classes: int, **kwargs: dict) -> nn.Module:
         """MobileNet model preparation.
 
         Args:
             model_name (str): Model name.
             num_classes (int): numer of classes.
+            kwargs (dict): _description_
 
         Returns:
             nn.Model: _description_
         """
-        return MobileNetV3(model_name=model_name, mode="large", num_classes=num_classes)
+        if model_name == "mobileNetV3-large":
+            return MobileNetV3(
+                model_name=model_name, mode="large", num_classes=num_classes
+            )
+        elif model_name == "mobileNetV3-small":
+            return MobileNetV3(
+                model_name=model_name, mode="small", num_classes=num_classes
+            )

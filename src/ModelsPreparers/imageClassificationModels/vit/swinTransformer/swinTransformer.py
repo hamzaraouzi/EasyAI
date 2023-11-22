@@ -99,12 +99,15 @@ class SwinTransformer(AbstractClassifier):
         return x
 
     @staticmethod
-    def prepareModel(model_name: str, num_classes: int = 10) -> nn.Module:
+    def prepareModel(
+        model_name: str, num_classes: int = 10, **kwargs: dict
+    ) -> nn.Module:
         """prepare model.
 
         Args:
             model_name (str): _description_
             num_classes (int): _description_. Defaults to 10.
+            kwargs (dict): _description_
 
         Returns:
             nn.Module: _description_

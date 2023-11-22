@@ -42,7 +42,11 @@ class AbstrctSegmenter(nn.Module):
 
     @abstractmethod
     def prepareModel(
-        self, model_name: str, in_channels: int = 3, num_classes: int = 10
+        self,
+        model_name: str,
+        in_channels: int = 3,
+        num_classes: int = 10,
+        **kwargs: dict
     ) -> nn.Module:
         """Desired model preparation.
 
@@ -50,6 +54,7 @@ class AbstrctSegmenter(nn.Module):
             model_name (str): model_name.
             in_channels (int): input channels.
             num_classes (int): number of classes.
+            kwargs (dict): _description_
 
         Returns:
             nn.Module: _description_
