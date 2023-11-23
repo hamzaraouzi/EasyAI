@@ -10,106 +10,97 @@ from ...imageClassificationModels.vit.swinTransformer.swinTransformer import (
 )
 
 
-def mobileNetV1(model_name: str, num_classes: int):
-    """_summary_.
+class Extractors:
+    """feature Extractors."""
 
-    Args:
-        model_name (str): _description_
-        num_classes (int): _description_
+    def mobileNetV1(model_name: str, num_classes: int):
+        """_summary_.
 
-    Returns:
-        _type_: _description_
+        Args:
+            num_classes (int): _description_.
+
+        Returns:
+            _type_: _description_
+        """
+        return MobileNetV1.prepareModel(model_name=model_name, num_classes=num_classes)
+
+    def mobileNetV2(model_name: str, num_classes: int):
+        """_summary_.
+
+        Args:
+            num_classes (int): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        return MobileNetV2.prepareModel(model_name=model_name, num_classes=num_classes)
+
+    def mobileNetV3(model_name: str, num_classes: int):
+        """_summary_.
+
+        Args:
+            num_classes (int): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        return MobileNetV3.prepareModel(model_name=model_name, num_classes=num_classes)
+
+    def resnet101(model_name: str, num_classes: int):
+        """_summary_.
+
+        Args:
+            num_classes (int): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        return Resnet101.prepareModel(model_name=model_name, num_classes=num_classes)
+
+    def resnet34(model_name: str, num_classes: int):
+        """_summary_.
+
+        Args:
+            num_classes (int): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        return Resnet34.prepareModel(model_name=model_name, num_classes=num_classes)
+
+    def xception(model_name: str, num_classes: int):
+        """_summary_.
+
+        Args:
+            num_classes (int): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        return Xception.prepareModel(model_name=model_name, num_classes=num_classes)
+
     """
-    return MobileNetV1.prepareModel(model_name=model_name, num_classes=num_classes)
+    def vit(model_name: str, num_classes: int):
+        return VIT.prepareModel(
+            model_name=model_name, num_classes=num_classes)
 
+    def swin_t(model_name: str, num_classes: int):
+        return SwinTransformer.prepareModel(
+            model_name=model_name, num_classes=num_classes
+        )
 
-def mobileNetV2(model_name: str, num_classes: int):
-    """_summary_.
+    def swin_s(model_name: str, num_classes: int):
+        return SwinTransformer.prepareModel(
+            model_name=model_name, num_classes=num_classes
+        )
 
-    Args:
-        model_name (str): _description_
-        num_classes (int): _description_
+    def swin_b(model_name: str, num_classes: int):
+        return SwinTransformer.prepareModel(
+            model_name=model_name, num_classes=num_classes
+        )
 
-    Returns:
-        _type_: _description_
+    def swin_l(model_name: str, num_classes: int):
+        return SwinTransformer.prepareModel(
+            model_name=model_name, num_classes=num_classes
+        )
     """
-    return MobileNetV2.prepareModel(model_name=model_name, num_classes=num_classes)
-
-
-def mobileNetV3(model_name: str, num_classes: int):
-    """_summary_.
-
-    Args:
-        model_name (str): _description_
-        num_classes (int): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    return MobileNetV3.prepareModel(model_name=model_name, num_classes=num_classes)
-
-
-def resnet101(model_name: str, num_classes: int):
-    """_summary_.
-
-    Args:
-        model_name (str): _description_
-        num_classes (int): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    return Resnet101.prepareModel(model_name=model_name, num_classes=num_classes)
-
-
-def resnet34(model_name: str, num_classes: int):
-    """_summary_.
-
-    Args:
-        model_name (str): _description_
-        num_classes (int): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    return Resnet34.prepareModel(model_name=model_name, num_classes=num_classes)
-
-
-def xception(model_name: str, num_classes: int):
-    """_summary_.
-
-    Args:
-        model_name (str): _description_
-        num_classes (int): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    return Xception.prepareModel(model_name=model_name, num_classes=num_classes)
-
-
-"""
-def vit(model_name: str, num_classes: int):
-    return VIT.prepareModel(
-        model_name=model_name, num_classes=num_classes)
-
-def swin_t(model_name: str, num_classes: int):
-    return SwinTransformer.prepareModel(
-        model_name=model_name, num_classes=num_classes
-    )
-
-def swin_s(model_name: str, num_classes: int):
-    return SwinTransformer.prepareModel(
-        model_name=model_name, num_classes=num_classes
-    )
-
-def swin_b(model_name: str, num_classes: int):
-    return SwinTransformer.prepareModel(
-        model_name=model_name, num_classes=num_classes
-    )
-
-def swin_l(model_name: str, num_classes: int):
-    return SwinTransformer.prepareModel(
-        model_name=model_name, num_classes=num_classes
-    )
-"""

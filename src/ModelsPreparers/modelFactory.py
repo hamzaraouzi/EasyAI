@@ -130,7 +130,7 @@ class ModelFactory:
 
             return PSPNet.prepareModel(
                 model_name=self.model_name,
-                num_channels=self.num_classes,
+                num_classes=self.num_classes,
                 backbone=self.backbone,
             )
 

@@ -5,7 +5,7 @@ from torch.nn import functional as F
 from ..abstractSegmenter import AbstrctSegmenter
 from ...imageClassificationModels.abstractClassifier import AbstractClassifier
 import ModelsPreparers.semanticSegmentationModels.decodersSegmentors.extractors as extractors
-import extractors
+from .extractors import Extractors
 
 
 class PSPModule(nn.Module):
@@ -173,7 +173,7 @@ class PSPNet(AbstrctSegmenter):
             "mobileNetV2": {"feats_id": 13, "psp_size": 96},
             "mobileNetV3": {"feats_id": 9, "psp_size": 48},
         }
-        backbone = getattr(extractors, kwargs["backbone"])(
+        backbone = getattr(Extractors, kwargs["backbone"])(
             model_name=kwargs["backbone"], num_classes=num_classes
         )
         params = key_map.get(kwargs["backbone"], None)
