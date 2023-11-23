@@ -15,11 +15,8 @@ class SegmentationTrainer(AbstractTrainer):
         super().__init__(config_path)
         # self.criterion = self.define_criterion()
 
-    def define_criterion(self, criterion: str) -> nn.Module:
+    def define_criterion(self) -> nn.Module:
         """defining criterion.
-
-        Args:
-            criterion (str): criterion name.
 
         Returns:
             nn.Module: pytorch model.

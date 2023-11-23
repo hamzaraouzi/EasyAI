@@ -386,7 +386,7 @@ class AbstractTrainer:
         #    }
         self.exp_tracker.init(config=None)
 
-        self.criterion = self.define_criterion(self.criterion)
+        self.criterion = self.define_criterion()
 
         self.optimizer = self.define_optimizer(model)
         self.lr_scheduler = self.prepare_lr_scheduler()
