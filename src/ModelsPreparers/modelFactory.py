@@ -61,7 +61,7 @@ class ModelFactory:
         """prepare  model.
 
         Raises:
-            NotImplemented: _description_.
+            NotImplementedError: _description_.
 
         Returns:
             nn.Module: pytorch model.
@@ -135,7 +135,7 @@ class ModelFactory:
             )
 
         else:
-            raise NotImplemented(
+            raise NotImplementedError(
                 f"{self.model_name} not implemented, please don't hesitate to create an issue on our repositry, to think about adding this model"
             )
 

@@ -28,4 +28,7 @@ class SegmentationTrainer(AbstractTrainer):
             return nn.CrossEntropyLoss()
 
         if self.task == "binary-semantic-segmentation":
-            return nn.BCEWithLogitsLoss()
+            if self.criterion == "BceLoss":
+                return nn.BCEWithLogitsLoss()
+            elif self.criterion == "NLLoss2d":
+                return nn.NLLLoss2d()

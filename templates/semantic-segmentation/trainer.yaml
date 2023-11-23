@@ -4,7 +4,7 @@ training:
   - project: WBC-segmentation
   - num_epochs: 20
   - device: cuda
-  - criterion: BceLoss
+  - criterion: NLLoss2d
   - optimizer:
         - name: Adam
         - lr: 0.0001

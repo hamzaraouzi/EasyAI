@@ -45,6 +45,7 @@ class AbstractTrainer:
         self.experiment_tracker = params2values["experiment_tracker"]
         self.monitor_metric = params2values["monitor_metric"]
         self.export_conf = params2values["export"]
+        self.criterion = params2values["criterion"]
 
         self.lr_schedular_conf = (
             dict(ChainMap(*params2values["learning_rate_scheduler"]))
@@ -275,6 +276,9 @@ class AbstractTrainer:
         Args:
             model (nn.Module): pytorch model.
 
+        Raises:
+            NotImplementedError: _description_
+
         Returns:
             optim.Optimizer: optimizer.
         """
@@ -287,7 +291,7 @@ class AbstractTrainer:
                 weight_decay=self.optimizer_parameters["weight_decay"],
             )
 
-        if self.optimizer_parameters["name"] == "SGD":
+        elif self.optimizer_parameters["name"] == "SGD":
             return optim.SGD(
                 model.parameters(),
                 lr=self.optimizer_parameters["lr"],
@@ -296,7 +300,7 @@ class AbstractTrainer:
                 nestrove=self.optimizer_parameters["nestrove"],
             )
 
-        if self.optimizer_parameters["name"] == "RMSprop":
+        elif self.optimizer_parameters["name"] == "RMSprop":
             return optim.RMSprop(
                 model.parameters(),
                 lr=self.optimizer_parameters["lr"],
@@ -305,7 +309,7 @@ class AbstractTrainer:
                 weight_decay=self.optimizer_parameters["weight_decay"],
             )
 
-        if self.optimizer_parameters["name"] == "Adagrad":
+        elif self.optimizer_parameters["name"] == "Adagrad":
             return optim.Adagrad(
                 model.parameters(),
                 lr=self.optimizer_parameters["lr"],
@@ -313,12 +317,14 @@ class AbstractTrainer:
                 weight_decay=self.optimizer_parameters["weight_decay"],
             )
 
-        if self.optimizer_parameters["name"] == "Adadelta":
+        elif self.optimizer_parameters["name"] == "Adadelta":
             return optim.Adadelta(
                 model.parameters(),
                 lr=self.optimizer_parameters["lr"],
                 weight_decay=self.optimizer_parameters["weight_decay"],
             )
+        else:
+            raise NotImplementedError("Optimizer Not implemented")
 
     @abstractmethod
     def log_metrics(self, exp_tracker: AbstractTracker, metrics: dict) -> None:
@@ -380,7 +386,7 @@ class AbstractTrainer:
         #    }
         self.exp_tracker.init(config=None)
 
-        self.criterion = self.define_criterion()
+        self.criterion = self.define_criterion(self.criterion)
 
         self.optimizer = self.define_optimizer(model)
         self.lr_scheduler = self.prepare_lr_scheduler()
