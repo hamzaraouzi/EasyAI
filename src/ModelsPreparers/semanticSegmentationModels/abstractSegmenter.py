@@ -166,7 +166,9 @@ class AbstrctSegmenter(nn.Module):
             for _, (X, y) in enumerate(tqdm(val_loader, leave=True)):
                 X, y = X.to(device), y.to(device)
                 y_pred = self(X)
-                loss = criterion(y_pred, y)
+                loss = criterion(
+                    y_pred.type(torch.LongTensor), y.type(torch.LongTensor)
+                )
                 val_loss += loss.item() / len(val_loader)
 
                 dice_score, iou_score = self.calculate_metrics(
