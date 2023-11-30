@@ -342,23 +342,6 @@ class MobileNetV3(AbstractClassifier):
             nn.Conv2d(1024, num_classes, kernel_size=1, stride=1),
         )
 
-    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
-        """feature extraction method.
-
-        Args:
-            x (torch.Tensor): _description_
-
-        Returns:
-            List[torch.Tensor]: _description_
-        """
-        feats = []
-        for layer in self.features:
-            x = layer(x)
-            feats.append(x)
-        x = self.conv(x)
-        feats.append(x)
-        return feats
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward method.
 

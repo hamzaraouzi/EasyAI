@@ -98,22 +98,6 @@ class MobileNetV1(AbstractClassifier):
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512, num_classes)
 
-    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
-        """features extraction method.
-
-        Args:
-            x (torch.Tensor): input tensor.
-
-        Returns:
-            List[torch.Tensor]: list of features.
-        """
-        features = []
-        x = self.initial_block(x)
-        for layer in self.layers:
-            x = layer(x)
-            features.append(x)
-        return features
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward method for MobileNetV1.
 

@@ -253,24 +253,6 @@ class Xception(AbstractClassifier):
             nn.Linear(1024, num_classes),
         )
 
-    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
-        """features extraction method.
-
-        Args:
-            x (torch.Tensor): _description_
-
-        Returns:
-            List[torch.Tensor]: _description_
-        """
-        feats = []
-        x = self.entry(x)
-        feats.append(x)
-        x = self.middle_flow(x)
-        feats.append(x)
-        x = self.exit_flow(x)
-        feats.append(x)
-        return feats
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward method.
 

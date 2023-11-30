@@ -33,18 +33,6 @@ class AbstractClassifier(nn.Module):
         self.task = "classification" if num_classes > 1 else "binary-classification"
 
     @abstractmethod
-    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
-        """features extraction method.
-
-        Args:
-            x (torch.Tensor): input tensor.
-
-        Returns:
-            List[torch.Tensor]: list of features.
-        """
-        pass
-
-    @abstractmethod
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward pass method.
 

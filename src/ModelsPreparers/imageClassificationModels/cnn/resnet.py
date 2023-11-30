@@ -187,32 +187,6 @@ class Resnet101(AbstractClassifier):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
-    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
-        """extract features.
-
-        Args:
-            x (torch.Tensor): _description_
-
-        Returns:
-            List[torch.Tensor]: _description_
-        """
-        feats = []
-        x = self.initial_block(x)
-        feats.append(x)
-        for block in self.b64:
-            x = block(x)
-        feats.append(x)
-        for block in self.b128:
-            x = block(x)
-        feats.append(x)
-        for block in self.b256:
-            x = block(x)
-        feats.append(x)
-        for block in self.b512:
-            x = block(x)
-        feats.append(x)
-        return feats
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward pass for Resnet101.
 
@@ -381,38 +355,6 @@ class Resnet34(AbstractClassifier):
             self.b512.append(
                 Residual_blockB(in_channels=512, out_channels=512, downsample=False)
             )
-
-    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
-        """extract features method.
-
-        Args:
-            x (torch.Tensor): _description_
-
-        Returns:
-            List[torch.Tensor]: _description_
-        """
-        feats = []
-
-        x = self.initial_block(x)
-        feats.append(x)
-
-        for block in self.b64:
-            x = block(x)
-        feats.append(x)
-
-        for block in self.b128:
-            x = block(x)
-
-        feats.append(x)
-
-        for block in self.b256:
-            x = block(x)
-        feats.append(x)
-
-        for block in self.b512:
-            x = block(x)
-        feats.append(x)
-        return feats
 
     def forward(self, x):
         """forward method resenet34 Module.

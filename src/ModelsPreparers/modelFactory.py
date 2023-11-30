@@ -17,7 +17,6 @@ from .semanticSegmentationModels.unets.unet import UNET
 from .semanticSegmentationModels.unets.attention_unet import Attention_unet
 from .semanticSegmentationModels.unets.r2_unet import R2U_net
 from .semanticSegmentationModels.unets.r2_attention_unet import R2AttU_net
-from .semanticSegmentationModels.decodersSegmentors.pspnet import PSPNet
 
 
 class ModelFactory:
