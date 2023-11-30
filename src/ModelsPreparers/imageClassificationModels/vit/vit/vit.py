@@ -75,13 +75,16 @@ class VIT(AbstractClassifier):
         return self.cls_layer(x)
 
     @staticmethod
-    def prepareModel(model_name: str, num_classes: int, in_channels: int = 3):
+    def prepareModel(
+        model_name: str, num_classes: int, in_channels: int = 3, **kwargs: dict
+    ):
         """VIT model preparation.
 
         Args:
             model_name (str): _description_
             num_classes (int): _description_
             in_channels (int): _description_. Defaults to 3.
+            kwargs (dict): _description_
 
         Returns:
             _type_: _description_

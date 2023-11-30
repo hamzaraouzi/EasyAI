@@ -1,4 +1,5 @@
 """Xception architecture implementation."""
+from typing import List
 import torch
 import torch.nn as nn
 from ..abstractClassifier import AbstractClassifier
@@ -196,15 +197,6 @@ class ExitFlow(nn.Module):
             nn.ReLU(),
             Separable(1536, 1024, 2048),
             nn.ReLU(),
-            nn.AdaptiveAvgPool2d((1, 1)),
-            nn.Flatten(1),
-            nn.Linear(2048, 1024),
-            nn.Dropout(p=0.2),
-            nn.ReLU(),
-            nn.Linear(1024, 512),
-            nn.Dropout(p=0.2),
-            nn.ReLU(),
-            nn.Linear(512, num_classes),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -218,7 +210,8 @@ class ExitFlow(nn.Module):
         """
         x_res = self.res(x)
         x = x_res.add(self.block(x))
-        return self.tail(x)
+        x = self.tail(x)
+        return x
 
 
 class Xception(AbstractClassifier):
@@ -251,6 +244,32 @@ class Xception(AbstractClassifier):
         self.middle_flow = self.mFlows()
 
         self.exit_flow = ExitFlow(728, num_classes)
+        self.classifier = nn.Sequential(
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(1),
+            nn.Linear(2048, 1024),
+            nn.Dropout(p=0.2),
+            nn.ReLU(),
+            nn.Linear(1024, num_classes),
+        )
+
+    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """features extraction method.
+
+        Args:
+            x (torch.Tensor): _description_
+
+        Returns:
+            List[torch.Tensor]: _description_
+        """
+        feats = []
+        x = self.entry(x)
+        feats.append(x)
+        x = self.middle_flow(x)
+        feats.append(x)
+        x = self.exit_flow(x)
+        feats.append(x)
+        return feats
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward method.
@@ -264,22 +283,23 @@ class Xception(AbstractClassifier):
         x = self.entry(x)
         x = self.middle_flow(x)
         x = self.exit_flow(x)
-
+        x = self.classifier(x)
         return x
 
     @staticmethod
     def prepareModel(
-        model_name: str, num_classes: int, in_channels: int = 3
+        model_name: str, num_classes: int, in_channels: int = 3, **kwargs: dict
     ) -> nn.Module:
         """MobileNet model preparation.
 
         Args:
-            model_name (str): Model name.
-            num_classes (int): number of classes.
-            in_channels (int): input channels.
+            model_name (str): _description_
+            num_classes (int): _description_
+            in_channels (int): _description_. Defaults to 3.
+            kwargs (dict): _description_.
 
         Returns:
-            nn.Model: _description_
+            nn.Module: _description_
         """
         return Xception(
             model_name=model_name, in_channels=in_channels, num_classes=num_classes

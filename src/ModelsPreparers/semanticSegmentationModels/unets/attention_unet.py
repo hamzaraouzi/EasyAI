@@ -1,7 +1,7 @@
 """Attention Unet model Implementation."""
 import torch.nn as nn
 import torch
-from .abstractSegmenter import AbstrctSegmenter
+from ..abstractSegmenter import AbstrctSegmenter
 
 from abc import abstractmethod
 
@@ -219,7 +219,7 @@ class Attention_unet(AbstrctSegmenter):
 
     @staticmethod
     def prepareModel(
-        model_name: str, in_channels: int = 3, num_classes: int = 10
+        model_name: str, in_channels: int = 3, num_classes: int = 10, **kwargs: dict
     ) -> nn.Module:
         """Desired model preparation.
 
@@ -227,6 +227,7 @@ class Attention_unet(AbstrctSegmenter):
             model_name (str): model name.
             in_channels (int): input channels.
             num_classes (int): number of classes.
+            kwargs (dict): _description_.
 
         Returns:
             nn.Module: _description_

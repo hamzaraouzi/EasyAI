@@ -1,7 +1,7 @@
 """implementation of r2-unet and r2-attention-unet."""
 import torch
 import torch.nn as nn
-from .abstractSegmenter import AbstrctSegmenter
+from ..abstractSegmenter import AbstrctSegmenter
 
 
 class Recurrent_block(nn.Module):
@@ -194,7 +194,7 @@ class R2U_net(AbstrctSegmenter):
 
     @staticmethod
     def prepareModel(
-        model_name: str, in_channels: int = 3, num_classes: int = 10
+        model_name: str, in_channels: int = 3, num_classes: int = 10, **kwargs: dict
     ) -> nn.Module:
         """Desired model preparation.
 
@@ -202,6 +202,7 @@ class R2U_net(AbstrctSegmenter):
             model_name (str): model_name.
             in_channels (int): input channels.
             num_classes (int): number of classes.
+            kwargs (dict): _description_.
 
         Returns:
             nn.Module: _description_

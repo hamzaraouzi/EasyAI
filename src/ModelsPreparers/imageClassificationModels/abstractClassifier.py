@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from typing import Literal, Tuple
+from typing import Literal, Tuple, List
 from torchmetrics.classification import (
     BinaryAccuracy,
     MulticlassAccuracy,
@@ -33,6 +33,18 @@ class AbstractClassifier(nn.Module):
         self.task = "classification" if num_classes > 1 else "binary-classification"
 
     @abstractmethod
+    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """features extraction method.
+
+        Args:
+            x (torch.Tensor): input tensor.
+
+        Returns:
+            List[torch.Tensor]: list of features.
+        """
+        pass
+
+    @abstractmethod
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward pass method.
 
@@ -49,13 +61,14 @@ class AbstractClassifier(nn.Module):
 
     @abstractmethod
     def prepareModel(
-        model_name: str, in_channels: int = 3, num_classes: int = 10
+        model_name: str, in_channels: int = 3, num_classes: int = 10, **kwargs: dict
     ) -> nn.Module:
-        """Desired model paration.
+        """Desired model preparation.
 
         Args:
-            in_channels (int): input channels.
-            num_classes (int): number of classes.
+            in_channels (int): _description_. Defaults to 3.
+            num_classes (int): _description_. Defaults to 10.
+            kwargs (dict): _description_.
 
         Returns:
             nn.Module: _description_

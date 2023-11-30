@@ -3,6 +3,7 @@
 import torch
 import torch.nn as nn
 from ..abstractClassifier import AbstractClassifier
+from typing import List
 
 
 class SeparableConv(nn.Module):
@@ -30,7 +31,12 @@ class SeparableConv(nn.Module):
             nn.BatchNorm2d(in_channels),
             nn.ReLU(),
             nn.Conv2d(
-                in_channels, in_channels, kernel_size=1, padding=0, stride=1, bias=False
+                in_channels,
+                out_channels,
+                kernel_size=1,
+                padding=0,
+                stride=1,
+                bias=False,
             ),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
@@ -89,8 +95,24 @@ class MobileNetV1(AbstractClassifier):
                     SeparableConv(in_channels=512, out_channels=512, stride=1)
                 )
 
-        self.avg_pool = nn.AvgPool2d(kernel_size=7, stride=1)
-        self.fc = nn.Linear(1024, num_classes)
+        self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
+        self.fc = nn.Linear(512, num_classes)
+
+    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """features extraction method.
+
+        Args:
+            x (torch.Tensor): input tensor.
+
+        Returns:
+            List[torch.Tensor]: list of features.
+        """
+        features = []
+        x = self.initial_block(x)
+        for layer in self.layers:
+            x = layer(x)
+            features.append(x)
+        return features
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward method for MobileNetV1.
@@ -109,15 +131,18 @@ class MobileNetV1(AbstractClassifier):
         return self.fc(x)
 
     @staticmethod
-    def prepareModel(model_name: str, num_classes: int = 10) -> nn.Module:
+    def prepareModel(
+        model_name: str, num_classes: int = 10, **kwargs: dict
+    ) -> nn.Module:
         """MobileNetV1 Model preparation.
 
         Args:
-            model_name (str): _description_
+            model_name (str): _description_.
             num_classes (int): _description_. Defaults to 10.
+            kwargs (dict): _description_.
 
         Returns:
-            nn.Module: _description_.
+            nn.Module: _description_
         """
         return MobileNetV1(
             model_name=model_name, in_channels=3, num_classes=num_classes

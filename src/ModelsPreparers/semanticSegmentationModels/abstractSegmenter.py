@@ -42,7 +42,11 @@ class AbstrctSegmenter(nn.Module):
 
     @abstractmethod
     def prepareModel(
-        self, model_name: str, in_channels: int = 3, num_classes: int = 10
+        self,
+        model_name: str,
+        in_channels: int = 3,
+        num_classes: int = 10,
+        **kwargs: dict
     ) -> nn.Module:
         """Desired model preparation.
 
@@ -50,6 +54,7 @@ class AbstrctSegmenter(nn.Module):
             model_name (str): model_name.
             in_channels (int): input channels.
             num_classes (int): number of classes.
+            kwargs (dict): _description_
 
         Returns:
             nn.Module: _description_
@@ -161,7 +166,9 @@ class AbstrctSegmenter(nn.Module):
             for _, (X, y) in enumerate(tqdm(val_loader, leave=True)):
                 X, y = X.to(device), y.to(device)
                 y_pred = self(X)
-                loss = criterion(y_pred, y)
+                loss = criterion(
+                    y_pred.type(torch.LongTensor), y.type(torch.LongTensor)
+                )
                 val_loss += loss.item() / len(val_loader)
 
                 dice_score, iou_score = self.calculate_metrics(

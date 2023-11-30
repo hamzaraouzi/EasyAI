@@ -12,10 +12,12 @@ from .imageClassificationModels.vit.swinTransformer.swinTransformer import (
     SwinTransformer,
 )
 
-from .semanticSegmentationModels.unet import UNET
-from .semanticSegmentationModels.attention_unet import Attention_unet
-from .semanticSegmentationModels.r2_unet import R2U_net
-from .semanticSegmentationModels.r2_attention_unet import R2AttU_net
+
+from .semanticSegmentationModels.unets.unet import UNET
+from .semanticSegmentationModels.unets.attention_unet import Attention_unet
+from .semanticSegmentationModels.unets.r2_unet import R2U_net
+from .semanticSegmentationModels.unets.r2_attention_unet import R2AttU_net
+from .semanticSegmentationModels.decodersSegmentors.pspnet import PSPNet
 
 
 class ModelFactory:
@@ -32,8 +34,9 @@ class ModelFactory:
 
         self.model_name = params2values["name"]
         self.task = params2values["task"]
-        self.pretrained = params2values["pretrained"]
+        self.pretrained = params2values.get("pretrained", False)
         self.num_classes = params2values["num_classes"]
+        self.backbone = params2values.get("backbone", None)
 
     def load_check_conf_file(self, config_path: str) -> dict:
         """Loading desired model configuration from  yaml file.
@@ -57,8 +60,11 @@ class ModelFactory:
     def prepareModels(self) -> nn.Module:
         """prepare  model.
 
+        Raises:
+            NotImplementedError: _description_.
+
         Returns:
-            nn.module: pytorch  model.
+            nn.Module: pytorch model.
         """
         if self.model_name == "vit":
             return VIT.prepareModel(
@@ -75,7 +81,7 @@ class ModelFactory:
                 model_name=self.model_name, num_classes=self.num_classes
             )
 
-        if self.model_name == "mobileNetV3":
+        if self.model_name in ["mobileNetV3-large", "mobileNetV3-small"]:
             return MobileNetV3.prepareModel(
                 model_name=self.model_name, num_classes=self.num_classes
             )
@@ -118,6 +124,19 @@ class ModelFactory:
         if self.model_name in ["swin-t", "swin-s", "swin-b", "swin-l"]:
             return SwinTransformer.prepareModel(
                 model_name=self.model_name, num_classes=self.num_classes
+            )
+
+        if self.model_name == "pspnet":
+
+            return PSPNet.prepareModel(
+                model_name=self.model_name,
+                num_classes=self.num_classes,
+                backbone=self.backbone,
+            )
+
+        else:
+            raise NotImplementedError(
+                f"{self.model_name} not implemented, please don't hesitate to create an issue on our repositry, to think about adding this model"
             )
 
     def __call__(self) -> nn.Module:

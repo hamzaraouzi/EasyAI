@@ -1,4 +1,5 @@
 """This model contains implementation of different sizes of resnet."""
+from typing import List
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -186,6 +187,32 @@ class Resnet101(AbstractClassifier):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
+    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """extract features.
+
+        Args:
+            x (torch.Tensor): _description_
+
+        Returns:
+            List[torch.Tensor]: _description_
+        """
+        feats = []
+        x = self.initial_block(x)
+        feats.append(x)
+        for block in self.b64:
+            x = block(x)
+        feats.append(x)
+        for block in self.b128:
+            x = block(x)
+        feats.append(x)
+        for block in self.b256:
+            x = block(x)
+        feats.append(x)
+        for block in self.b512:
+            x = block(x)
+        feats.append(x)
+        return feats
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """forward pass for Resnet101.
 
@@ -205,9 +232,6 @@ class Resnet101(AbstractClassifier):
         for block in self.b256:
             x = block(x)
 
-        for block in self.b256:
-            x = block(x)
-
         for block in self.b512:
             x = block(x)
 
@@ -218,7 +242,7 @@ class Resnet101(AbstractClassifier):
 
     @staticmethod
     def prepareModel(
-        model_name: str, in_channels: int = 3, num_classes: int = 10
+        model_name: str, in_channels: int = 3, num_classes: int = 10, **kwargs: dict
     ) -> nn.Module:
         """Prepare Resnet101 model.
 
@@ -226,6 +250,7 @@ class Resnet101(AbstractClassifier):
             model_name (str): _description_
             in_channels (int): _description_. Defaults to 3.
             num_classes (int): _description_. Defaults to 10.
+            kwargs (dict): _description_
 
         Returns:
             nn.Module: _description_
@@ -357,6 +382,38 @@ class Resnet34(AbstractClassifier):
                 Residual_blockB(in_channels=512, out_channels=512, downsample=False)
             )
 
+    def extract_features(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """extract features method.
+
+        Args:
+            x (torch.Tensor): _description_
+
+        Returns:
+            List[torch.Tensor]: _description_
+        """
+        feats = []
+
+        x = self.initial_block(x)
+        feats.append(x)
+
+        for block in self.b64:
+            x = block(x)
+        feats.append(x)
+
+        for block in self.b128:
+            x = block(x)
+
+        feats.append(x)
+
+        for block in self.b256:
+            x = block(x)
+        feats.append(x)
+
+        for block in self.b512:
+            x = block(x)
+        feats.append(x)
+        return feats
+
     def forward(self, x):
         """forward method resenet34 Module.
 
@@ -386,12 +443,13 @@ class Resnet34(AbstractClassifier):
         return self.fc(x)
 
     @staticmethod
-    def prepareModel(model_name: str, num_classes: int) -> nn.Module:
+    def prepareModel(model_name: str, num_classes: int, **kwargs: dict) -> nn.Module:
         """prepare resnet34 model.
 
         Args:
             model_name (str): _description_
             num_classes (int): _description_
+            kwargs (dict): _description_
 
         Returns:
             nn.Module: _description_
