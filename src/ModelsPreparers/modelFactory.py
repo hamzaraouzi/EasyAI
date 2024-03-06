@@ -125,14 +125,6 @@ class ModelFactory:
                 model_name=self.model_name, num_classes=self.num_classes
             )
 
-        if self.model_name == "pspnet":
-
-            return PSPNet.prepareModel(
-                model_name=self.model_name,
-                num_classes=self.num_classes,
-                backbone=self.backbone,
-            )
-
         else:
             raise NotImplementedError(
                 f"{self.model_name} not implemented, please don't hesitate to create an issue on our repositry, to think about adding this model"
